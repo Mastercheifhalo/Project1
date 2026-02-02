@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, GraduationCap, PlayCircle, CreditCard } from 'lucide-react';
+import { Menu, X, GraduationCap, PlayCircle, CreditCard, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -69,30 +70,47 @@ const Navbar = () => {
         </div>
 
         {/* Mobile menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 glass p-6 flex flex-col gap-6 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-4 text-lg font-bold text-slate-700 hover:text-violet-600 p-2 rounded-lg hover:bg-violet-50 transition-all"
-              >
-                <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:text-violet-600">
-                  {link.icon}
-                </div>
-                {link.name}
-              </Link>
-            ))}
-            <Link
-              href="/login"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="w-full py-4 bg-violet-600 text-white text-center font-bold rounded-xl shadow-lg shadow-violet-600/20"
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="md:hidden fixed inset-0 top-[72px] bg-white/95 backdrop-blur-2xl z-[100] p-6 flex flex-col items-center justify-start gap-8 shadow-2xl overflow-y-auto"
             >
-              Sign In
-            </Link>
-          </div>
-        )}
+              <div className="w-full max-w-sm flex flex-col gap-4 mt-8">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-between p-5 rounded-2xl bg-slate-50 hover:bg-violet-50 transition-all border border-slate-100 group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-slate-500 group-hover:text-violet-600 shadow-sm transition-colors">
+                        {link.icon}
+                      </div>
+                      <span className="text-xl font-black text-slate-900">{link.name}</span>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-violet-600 transition-colors" />
+                  </Link>
+                ))}
+
+                <Link
+                  href="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full mt-4 py-5 bg-slate-900 text-white text-center text-xl font-black rounded-2xl shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-transform"
+                >
+                  Sign In
+                </Link>
+
+                <div className="mt-12 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">
+                  © 2026 CoursePro Platform
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );

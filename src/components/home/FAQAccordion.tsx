@@ -40,10 +40,10 @@ const FAQAccordion = () => {
                     <div key={index} className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm transition-all">
                         <button
                             onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                            className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 transition-colors"
+                            className="w-full flex items-center justify-between p-5 md:p-6 text-left hover:bg-slate-50 transition-colors"
                         >
-                            <span className="font-black text-slate-800 uppercase tracking-tight">{faq.q}</span>
-                            {openIndex === index ? <ChevronUp className="w-5 h-5 text-violet-600" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+                            <span className="font-bold text-slate-800 text-lg md:text-xl tracking-tight leading-snug">{faq.q}</span>
+                            {openIndex === index ? <ChevronUp className="w-5 h-5 flex-shrink-0 text-violet-600" /> : <ChevronDown className="w-5 h-5 flex-shrink-0 text-slate-400" />}
                         </button>
                         {openIndex === index && (
                             <div className="px-6 pb-6 animate-in slide-in-from-top-2 duration-300">
