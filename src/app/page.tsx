@@ -38,7 +38,7 @@ export default function Home() {
     <main className="min-h-screen pb-24">
       {/* Hero Section */}
       <ScrollReveal direction="none">
-        <section className="relative pt-24 md:pt-32 pb-16 md:pb-20 px-4 md:px-6 max-w-7xl mx-auto text-center">
+        <section className="relative pt-32 md:pt-32 pb-16 md:pb-20 px-4 md:px-6 max-w-7xl mx-auto text-center">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_70%)] opacity-5 pointer-events-none -z-10" />
 
           <ScrollReveal direction="up" delay={0.2}>
@@ -71,7 +71,7 @@ export default function Home() {
 
       {/* Trial Videos Section */}
       <ScrollReveal>
-        <section id="trial" className="py-24 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-24 lg:scroll-mt-32">
+        <section id="trial" className="py-24 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-32">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight uppercase">High-Quality <span className="text-violet-500">Learning</span></h2>
             <p className="text-slate-600 max-w-xl mx-auto text-lg leading-relaxed font-medium">Get a taste of our premium content. Watch these trial lessons to see why thousands of students trust us.</p>
@@ -88,7 +88,7 @@ export default function Home() {
       </ScrollReveal>
 
       <ScrollReveal>
-        <section id="pricing" className="py-24 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-24 lg:scroll-mt-32">
+        <section id="pricing" className="py-24 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-32">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight uppercase">Simple, Transparent <span className="text-violet-500">Pricing</span></h2>
             <p className="text-slate-600 max-w-xl mx-auto text-lg leading-relaxed font-medium">Choose the plan that fits your learning pace. Subscriptions unlock all current and future courses.</p>
