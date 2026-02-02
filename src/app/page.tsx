@@ -71,9 +71,9 @@ export default function Home() {
 
       {/* Trial Videos Section */}
       <ScrollReveal>
-        <section id="trial" className="py-24 px-4 md:px-6 max-w-7xl mx-auto">
+        <section id="trial" className="py-24 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-24 lg:scroll-mt-32">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-extrabold mb-6 tracking-tight uppercase">High-Quality <span className="text-violet-500">Learning</span></h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight uppercase">High-Quality <span className="text-violet-500">Learning</span></h2>
             <p className="text-slate-600 max-w-xl mx-auto text-lg leading-relaxed font-medium">Get a taste of our premium content. Watch these trial lessons to see why thousands of students trust us.</p>
           </div>
 
@@ -88,9 +88,9 @@ export default function Home() {
       </ScrollReveal>
 
       <ScrollReveal>
-        <section id="pricing" className="py-24 px-4 md:px-6 max-w-7xl mx-auto">
+        <section id="pricing" className="py-24 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-24 lg:scroll-mt-32">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-extrabold mb-6 tracking-tight uppercase">Simple, Transparent <span className="text-violet-500">Pricing</span></h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight uppercase">Simple, Transparent <span className="text-violet-500">Pricing</span></h2>
             <p className="text-slate-600 max-w-xl mx-auto text-lg leading-relaxed font-medium">Choose the plan that fits your learning pace. Subscriptions unlock all current and future courses.</p>
           </div>
 
