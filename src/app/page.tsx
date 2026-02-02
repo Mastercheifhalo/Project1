@@ -104,8 +104,10 @@ export default function Home() {
         </section>
       </ScrollReveal>
 
-      {/* FAQ */}
-      <FAQAccordion />
+      {/* FAQ Section */}
+      <section id="faq" className="scroll-mt-32">
+        <FAQAccordion />
+      </section>
 
       {/* Testimonials */}
       <Testimonials />

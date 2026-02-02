@@ -18,19 +18,19 @@ export default function TrialVideo({ title, thumbnail, isUnlocked = false }: Tri
       />
 
       {!isUnlocked && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-900/90 backdrop-blur-lg z-10 transition-all duration-500 group-hover:bg-slate-900/85">
-          <div className="mb-6 p-5 bg-violet-600 rounded-full shadow-[0_0_40px_rgba(139,92,246,0.5)] transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002-2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-900/60 backdrop-blur-2xl z-10 transition-all duration-500 group-hover:bg-slate-900/50">
+          <div className="p-8 bg-white/10 backdrop-blur-3xl rounded-[2.5rem] border border-white/20 shadow-2xl flex flex-col items-center transform group-hover:scale-105 transition-all duration-500">
+            <div className="mb-4 p-4 bg-violet-600 rounded-2xl shadow-lg shadow-violet-500/30">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002-2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-black mb-2 text-white tracking-tight uppercase italic leading-none">Premium</h3>
+            <p className="text-white/70 text-xs mb-6 font-bold uppercase tracking-widest">Locked Lesson</p>
+            <a href="#pricing" className="px-10 py-3 bg-white text-slate-900 font-black rounded-xl hover:bg-slate-100 transition-all active:scale-95 text-sm shadow-xl shadow-black/20">
+              VIEW PLANS
+            </a>
           </div>
-          <h3 className="text-3xl font-black mb-3 text-white tracking-tight leading-none uppercase italic">Premium Lesson</h3>
-          <p className="text-slate-400 text-sm mb-8 max-w-[240px] font-bold uppercase tracking-widest leading-relaxed">
-            Unlock Full Access
-          </p>
-          <a href="#pricing" className="px-12 py-4 bg-white text-slate-900 font-black rounded-2xl hover:bg-slate-50 transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)] active:scale-95 text-lg">
-            VIEW PLANS
-          </a>
         </div>
       )}
 
