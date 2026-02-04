@@ -2,6 +2,7 @@
 
 import React from 'react';
 import TiltCard from '@/components/common/TiltCard';
+import { useRouter } from 'next/navigation';
 
 interface PricingCardProps {
     tier: string;
@@ -12,6 +13,12 @@ interface PricingCardProps {
 }
 
 export default function PricingCard({ tier, price, interval, features, isPopular = false }: PricingCardProps) {
+    const router = useRouter();
+
+    const handlePurchase = () => {
+        router.push(`/checkout/crypto?plan=${encodeURIComponent(tier)}&price=${encodeURIComponent(price)}`);
+    };
+
     return (
         <TiltCard degree={isPopular ? 5 : 10} className="h-full">
             <div className={`relative p-8 rounded-3xl border transition-all duration-300 group h-full ${isPopular ? 'border-violet-500 bg-white shadow-2xl shadow-violet-500/10 scale-105 z-10' : 'border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-slate-200'} flex flex-col`}>
@@ -42,7 +49,10 @@ export default function PricingCard({ tier, price, interval, features, isPopular
                     ))}
                 </ul>
 
-                <button className={`w-full py-4 rounded-xl font-bold transition-all ${isPopular ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-600/20' : 'bg-slate-900 hover:bg-slate-800 text-white'}`}>
+                <button
+                    onClick={handlePurchase}
+                    className={`w-full py-4 rounded-xl font-bold transition-all ${isPopular ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-600/20' : 'bg-slate-900 hover:bg-slate-800 text-white'}`}
+                >
                     Get {tier} Now
                 </button>
             </div>
