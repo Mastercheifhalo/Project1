@@ -36,20 +36,6 @@ const Testimonials = () => {
                 </p>
             </div>
 
-            <div className="flex justify-center mb-16">
-                <ScrollReveal delay={0.1}>
-                    <TiltCard degree={10}>
-                        <div className="bg-white p-8 px-12 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all text-center group">
-                            <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                                <Star className="w-5 h-5" />
-                            </div>
-                            <p className="text-4xl font-black text-slate-900 mb-1">4.9/5.0</p>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Verified Student Rating</p>
-                        </div>
-                    </TiltCard>
-                </ScrollReveal>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {reviews.map((review, index) => (
                     <ScrollReveal key={index} delay={index * 0.1}>

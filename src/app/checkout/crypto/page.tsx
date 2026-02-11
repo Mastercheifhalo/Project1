@@ -44,6 +44,38 @@ function CheckoutContent() {
     const [isDone, setIsDone] = useState(false);
     const [instructionsOpen, setInstructionsOpen] = useState(false);
     const [showToast, setShowToast] = useState(false);
+    const [cryptoPrices, setCryptoPrices] = useState<Record<string, number>>({ BTC: 0, USDT: 1, USDC: 1 });
+    const [isFetchingPrice, setIsFetchingPrice] = useState(true);
+
+    useEffect(() => {
+        const fetchPrices = async () => {
+            setIsFetchingPrice(true);
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,tether,usd-coin&vs_currencies=usd');
+                const data = await response.json();
+                setCryptoPrices({
+                    BTC: data.bitcoin.usd,
+                    USDT: data.tether.usd,
+                    USDC: data['usd-coin'].usd
+                });
+            } catch (error) {
+                console.error("Failed to fetch prices:", error);
+            } finally {
+                setIsFetchingPrice(false);
+            }
+        };
+
+        fetchPrices();
+        const interval = setInterval(fetchPrices, 60000); // Update every minute
+        return () => clearInterval(interval);
+    }, []);
+
+    const calculateCryptoAmount = () => {
+        const usdPrice = parseFloat(price);
+        const cryptoPrice = cryptoPrices[selectedCoin];
+        if (!cryptoPrice) return "0.00";
+        return (usdPrice / cryptoPrice).toFixed(selectedCoin === 'BTC' ? 8 : 2);
+    };
 
     useEffect(() => {
         if (showToast) {
@@ -139,28 +171,28 @@ function CheckoutContent() {
                 </Link>
 
                 <ScrollReveal direction="up">
-                    <div className="bg-white md:rounded-[3rem] md:shadow-2xl md:shadow-slate-200/50 border-0 md:border md:border-slate-100 overflow-hidden flex flex-col lg:flex-row min-h-auto md:min-h-[750px] relative">
+                    <div className="bg-white md:rounded-[3rem] md:shadow-2xl md:shadow-slate-200/50 border-0 md:border md:border-slate-100 overflow-hidden flex flex-col lg:flex-row items-stretch min-h-auto md:min-h-[750px] relative">
 
                         {/* LEFT SIDEBAR / TOP SUMMARY: COMPACT PLAN CARD */}
-                        <div className="lg:w-[380px] bg-white md:bg-slate-950 p-0 md:p-12 text-slate-900 md:text-white flex flex-col relative overflow-hidden">
+                        <div className="lg:w-[380px] bg-white md:bg-slate-950 p-6 md:p-12 text-slate-900 md:text-white flex flex-col relative overflow-hidden">
                             <div className="hidden md:block absolute top-0 left-0 w-full h-full bg-gradient-to-br from-violet-600/20 via-transparent to-blue-600/10 pointer-events-none" />
 
-                            <div className="relative z-10 space-y-6 md:space-y-10 h-full flex flex-col">
+                            <div className="relative z-10 h-full flex flex-col">
                                 {/* Desktop Title */}
-                                <div className="hidden md:flex items-center gap-4 mb-10">
-                                    <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10">
+                                <div className="hidden md:flex items-center gap-4 mb-10 h-12">
+                                    <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 shrink-0">
                                         <Sparkles className="w-6 h-6 text-violet-400" />
                                     </div>
-                                    <h2 className="text-2xl font-black uppercase tracking-tight text-white !text-white">Checkout</h2>
+                                    <h2 className="text-2xl font-black uppercase tracking-tight text-white !text-white leading-none">Checkout</h2>
                                 </div>
 
-                                {/* Compact Plan Card (Mobile Style first, adapted for desktop) */}
-                                <div className="p-4 md:p-8 bg-slate-50 md:bg-white/[0.03] rounded-2xl md:rounded-[2rem] border border-slate-100 md:border-white/10 shadow-sm md:shadow-inner">
-                                    <div className="flex flex-col gap-1 mb-4">
+                                {/* Compact Plan Card */}
+                                <div className="p-5 md:p-8 bg-slate-50 md:bg-white/[0.03] rounded-2xl md:rounded-[2rem] border border-slate-100 md:border-white/10 shadow-sm md:shadow-inner">
+                                    <div className="flex flex-col gap-2 mb-6">
                                         <p className="text-[10px] md:text-[11px] font-black text-slate-400 md:text-white/40 uppercase tracking-[0.2em]">{plan} Plan</p>
-                                        <div className="flex items-baseline justify-between group">
-                                            <p className="text-lg md:text-xl font-bold opacity-90 md:text-white">Access Pass</p>
-                                            <p className="text-2xl md:text-4xl font-black text-violet-600 md:text-white tracking-tight">${price}<span className="text-xs md:text-sm font-medium text-slate-400 md:text-white/40 ml-1">/{plan === 'Monthly' ? 'mo' : plan === 'Quarterly' ? '3mo' : 'yr'}</span></p>
+                                        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 group">
+                                            <p className="text-lg md:text-xl font-bold opacity-90 md:text-white leading-none">Access Pass</p>
+                                            <p className="text-2xl md:text-3xl lg:text-4xl font-black text-violet-600 md:text-white tracking-tight leading-none">${price}<span className="text-xs md:text-sm font-medium text-slate-400 md:text-white/40 ml-1">/{plan === 'Monthly' ? 'mo' : plan === 'Quarterly' ? '3mo' : 'yr'}</span></p>
                                         </div>
                                     </div>
 
@@ -200,51 +232,78 @@ function CheckoutContent() {
                         {/* RIGHT CONTENT: UNIFIED PAYMENT MODULE */}
                         <div className="flex-1 bg-white flex flex-col h-full relative">
 
-                            {/* Payment Section Title & Price (Mobile Clear View) */}
-                            <div className="p-0 md:p-12 pb-0 md:pb-0 pt-8 md:pt-12 flex flex-col gap-8">
-                                <div className="md:hidden flex flex-col gap-2">
+                            {/* Payment Section Title & Price */}
+                            <div className="p-6 md:p-12 flex flex-col h-full">
+                                <div className="md:hidden flex flex-col gap-2 mb-8">
                                     <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Payment Method</h2>
                                     <p className="text-slate-400 font-bold text-sm tracking-wide">Choose your preferred currency</p>
                                 </div>
-                                <div className="hidden md:block">
-                                    <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight uppercase mb-2">Payment</h2>
+                                <div className="hidden md:block h-12 flex items-center mb-10">
+                                    <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight uppercase leading-none">Payment</h2>
+                                </div>
+                                <div className="hidden md:block mb-10 -mt-8">
                                     <p className="text-slate-400 font-bold text-sm tracking-wide">Select and complete your transfer</p>
                                 </div>
 
-                                {/* Switchable Tabs (Mobile & Desktop Unified) */}
-                                <div className="bg-slate-100 p-1 md:p-1.5 rounded-2xl flex relative shadow-inner w-full md:w-fit transition-all overflow-hidden h-[54px] md:h-auto">
-                                    {/* Active Indicator Slide Overlay */}
-                                    <div
-                                        className="absolute top-1 bottom-1 bg-white rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-0"
-                                        style={{
-                                            left: `calc(${(['USDT', 'BTC', 'USDC'].indexOf(selectedCoin) * 100) / 3}% + 4px)`,
-                                            width: `calc(100% / 3 - 8px)`
-                                        }}
-                                    />
+                                {/* Switchable Tabs */}
+                                <div className="px-6 md:px-0">
+                                    <div className="bg-slate-100 p-1 md:p-1.5 rounded-2xl flex relative shadow-inner w-full md:w-fit transition-all overflow-hidden h-[54px] md:h-auto">
+                                        <div
+                                            className="absolute top-1 bottom-1 bg-white rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-0"
+                                            style={{
+                                                left: `calc(${(['USDT', 'BTC', 'USDC'].indexOf(selectedCoin) * 100) / 3}% + 4px)`,
+                                                width: `calc(100% / 3 - 8px)`
+                                            }}
+                                        />
 
-                                    {['USDT', 'BTC', 'USDC'].map((coin) => (
-                                        <button
-                                            key={coin}
-                                            onClick={() => setSelectedCoin(coin)}
-                                            className={`relative z-10 flex-1 md:flex-none md:px-8 py-3 rounded-xl text-[13px] md:text-xs font-black tracking-widest transition-colors duration-300 flex items-center justify-center ${selectedCoin === coin
-                                                ? 'text-violet-600'
-                                                : 'text-slate-400 hover:text-slate-600'
-                                                }`}
-                                        >
-                                            {coin}
-                                        </button>
-                                    ))}
+                                        {['USDT', 'BTC', 'USDC'].map((coin) => (
+                                            <button
+                                                key={coin}
+                                                onClick={() => setSelectedCoin(coin)}
+                                                className={`relative z-10 flex-1 md:flex-none md:px-8 py-3 rounded-xl text-[13px] md:text-xs font-black tracking-widest transition-colors duration-300 flex items-center justify-center ${selectedCoin === coin
+                                                    ? 'text-violet-600'
+                                                    : 'text-slate-400 hover:text-slate-600'
+                                                    }`}
+                                            >
+                                                {coin}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="p-0 md:p-12 md:space-y-10 flex-1 flex flex-col pt-10 md:pt-12">
+                            {/* Live Price Status Bar */}
+                            <div className="px-6 md:px-12 mt-6">
+                                <div className="bg-violet-600/5 border border-violet-100/50 rounded-2xl p-4 flex items-center justify-between group overflow-hidden relative">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/[0.02] to-transparent pointer-events-none" />
+                                    <div className="flex items-center gap-3 relative z-10">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                        <span className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest">Live exchange rate</span>
+                                    </div>
+                                    <div className="flex items-center gap-4 relative z-10">
+                                        {isFetchingPrice ? (
+                                            <div className="w-16 h-4 bg-slate-100 animate-pulse rounded" />
+                                        ) : (
+                                            <p className="text-xs md:text-sm font-black text-slate-900 tracking-tight">
+                                                1 {selectedCoin} = <span className="text-violet-600">${cryptoPrices[selectedCoin].toLocaleString()}</span>
+                                            </p>
+                                        )}
+                                        <div className="hidden md:flex items-center gap-2 px-2.5 py-1 bg-white border border-slate-100 rounded-lg shadow-sm">
+                                            <Zap className="w-3 h-3 text-amber-500" />
+                                            <span className="text-[9px] font-black text-slate-400 uppercase">Instant</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-6 md:p-12 md:space-y-10 flex-1 flex flex-col pt-10 md:pt-12">
 
                                 {/* Wallet & Address Module */}
-                                <div className="bg-slate-50 md:rounded-[3rem] p-6 md:p-12 border-0 md:border md:border-slate-100 mb-8 md:mb-10 overflow-hidden relative group">
+                                <div className="bg-slate-50 md:rounded-[3rem] p-6 md:p-12 border-2 border-slate-100/50 md:border md:border-slate-100 mb-8 md:mb-10 overflow-hidden relative group">
                                     <div className="hidden md:block absolute top-0 right-0 w-96 h-96 bg-violet-600/[0.03] blur-[100px] rounded-full -mr-32 -mt-32 pointer-events-none group-hover:bg-violet-600/[0.05] transition-colors" />
 
                                     <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
-                                        {/* QR Code - Centered on Mobile, Sidebar style on Desktop */}
+                                        {/* QR Code */}
                                         <div className="flex w-48 h-48 md:w-56 md:h-56 bg-white rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-6 shadow-xl shadow-slate-200/50 border border-slate-100 flex-shrink-0 items-center justify-center relative group/qr mx-auto lg:mx-0">
                                             <img
                                                 src="/images/payments/qr-placeholder.png"
@@ -258,7 +317,7 @@ function CheckoutContent() {
                                             <div>
                                                 <div className="flex items-center justify-between mb-3 md:mb-4 px-1">
                                                     <label className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.25em]">
-                                                        Send exactly <span className="text-slate-900">${price}</span> {selectedCoin}
+                                                        Send exactly <span className="text-slate-900">{calculateCryptoAmount()}</span> {selectedCoin} <span className="text-slate-300 mx-1">/</span> <span className="text-slate-400">${price}</span>
                                                     </label>
                                                     <div className="flex items-center gap-2 text-[10px] md:text-[11px] font-black text-violet-500 uppercase tracking-widest">
                                                         <div className="w-1 h-1 rounded-full bg-violet-500 animate-pulse" />
@@ -293,7 +352,7 @@ function CheckoutContent() {
                                                 </div>
                                             </div>
 
-                                            {/* Micro-Instructions (Static View) */}
+                                            {/* Micro-Instructions */}
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                                                 <div className="bg-white/70 border border-slate-200 p-4 rounded-2xl flex items-center gap-3">
                                                     <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -316,7 +375,7 @@ function CheckoutContent() {
                                     </div>
                                 </div>
 
-                                {/* Accordion Instructions (Mobile First) */}
+                                {/* Accordion Instructions */}
                                 <div className="px-1 mb-8">
                                     <button
                                         onClick={() => setInstructionsOpen(!instructionsOpen)}
@@ -353,7 +412,7 @@ function CheckoutContent() {
                                     )}
                                 </div>
 
-                                {/* Desktop Final Action Button - Visible only on desktop */}
+                                {/* Desktop Final Action Button */}
                                 <div className="hidden md:block mt-auto space-y-6">
                                     <button
                                         onClick={handleConfirm}

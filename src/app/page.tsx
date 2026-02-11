@@ -1,7 +1,6 @@
 import PricingCard from '@/components/pricing/PricingCard';
 import TrialVideo from '@/components/video/TrialVideo';
 import Testimonials from '@/components/home/Testimonials';
-import FAQAccordion from '@/components/home/FAQAccordion';
 import ScrollReveal from '@/components/common/ScrollReveal';
 import { ArrowRight } from 'lucide-react';
 
@@ -103,11 +102,6 @@ export default function Home() {
           </div>
         </section>
       </ScrollReveal>
-
-      {/* FAQ Section */}
-      <section id="faq" className="scroll-mt-32">
-        <FAQAccordion />
-      </section>
 
       {/* Testimonials */}
       <Testimonials />
