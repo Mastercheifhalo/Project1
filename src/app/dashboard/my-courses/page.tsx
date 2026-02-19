@@ -13,7 +13,6 @@ export default function MyCoursesPage() {
         {
             id: 1,
             title: 'Mastering Advanced React Hooks & Design Patterns',
-            instructor: 'Sarah Drasner',
             progress: 65,
             image: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=2831&auto=format&fit=crop',
             lessons: '24/36',
@@ -22,7 +21,6 @@ export default function MyCoursesPage() {
         {
             id: 2,
             title: 'Full-Stack Web Development with Next.js 14',
-            instructor: 'Lee Robinson',
             progress: 30,
             image: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?q=80&w=2834&auto=format&fit=crop',
             lessons: '12/40',
@@ -31,9 +29,8 @@ export default function MyCoursesPage() {
         {
             id: 3,
             title: 'UI/UX Design Systems for Modern Apps',
-            instructor: 'Gary Simon',
             progress: 100,
-            image: 'https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?q=80&w=2940&auto=format&fit=crop',
+            image: 'https://images.unsplash.com/photo-1586717791821-3f44a563dc4c?q=80&w=2940&auto=format&fit=crop',
             lessons: '20/20',
             duration: 'Completed'
         }

@@ -13,8 +13,7 @@ const courses = [
         duration: "12h 45m",
         lessons: 48,
         rating: 4.9,
-        image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=800",
-        instructor: "Alex Rivera"
+        image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 2,
@@ -24,8 +23,7 @@ const courses = [
         duration: "8h 20m",
         lessons: 32,
         rating: 4.8,
-        image: "https://images.unsplash.com/photo-1586717791821-3f44a563dc4c?auto=format&fit=crop&q=80&w=800",
-        instructor: "Sarah Chen"
+        image: "https://images.unsplash.com/photo-1586717791821-3f44a563dc4c?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 3,
@@ -35,8 +33,7 @@ const courses = [
         duration: "15h 30m",
         lessons: 56,
         rating: 5.0,
-        image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800",
-        instructor: "David Miller"
+        image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 4,
@@ -46,8 +43,7 @@ const courses = [
         duration: "6h 15m",
         lessons: 24,
         rating: 4.7,
-        image: "https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?auto=format&fit=crop&q=80&w=800",
-        instructor: "Emma Wilson"
+        image: "https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 5,
@@ -57,8 +53,7 @@ const courses = [
         duration: "10h 00m",
         lessons: 40,
         rating: 4.9,
-        image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800",
-        instructor: "James Knight"
+        image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 6,
@@ -68,8 +63,7 @@ const courses = [
         duration: "9h 45m",
         lessons: 35,
         rating: 4.6,
-        image: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&q=80&w=800",
-        instructor: "Maria Garcia"
+        image: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&q=80&w=800"
     }
 ];
 
@@ -114,8 +108,8 @@ const CoursesPage = () => {
                             key={cat}
                             onClick={() => setActiveCategory(cat)}
                             className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all ${activeCategory === cat
-                                    ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10'
-                                    : 'bg-white text-slate-500 hover:text-slate-900 border border-slate-200 hover:border-slate-300'
+                                ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10'
+                                : 'bg-white text-slate-500 hover:text-slate-900 border border-slate-200 hover:border-slate-300'
                                 }`}
                         >
                             {cat}
@@ -165,10 +159,10 @@ const CoursesPage = () => {
 
                                 <div className="flex items-center justify-between pt-6 border-t border-slate-50">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 font-black text-xs uppercase">
-                                            {course.instructor.charAt(0)}
+                                        <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 font-black text-xs uppercase">
+                                            CP
                                         </div>
-                                        <span className="text-xs font-black text-slate-600 uppercase tracking-widest">{course.instructor}</span>
+                                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Mastery Program</span>
                                     </div>
                                     <button className="p-2.5 bg-violet-600 text-white rounded-xl shadow-lg shadow-violet-600/10 group-hover:scale-110 transition-all">
                                         <ChevronRight className="w-5 h-5" />

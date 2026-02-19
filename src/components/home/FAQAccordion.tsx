@@ -14,10 +14,6 @@ const FAQAccordion = () => {
             a: "We offer courses for all levels. Each course landing page clearly states whether it's for beginners, intermediate, or advanced learners."
         },
         {
-            q: "Do I get a certificate upon completion?",
-            a: "Yes! Every course on our platform comes with a professional digital certificate that you can share on your LinkedIn profile."
-        },
-        {
             q: "How often is new content added?",
             a: "We add at least 2 new premium masterclasses every month to ensure you're always learning the latest industry standards."
         }

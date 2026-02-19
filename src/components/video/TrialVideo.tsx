@@ -10,7 +10,7 @@ interface TrialVideoProps {
 
 export default function TrialVideo({ title, thumbnail, isUnlocked = false }: TrialVideoProps) {
   return (
-    <div className="relative group overflow-hidden rounded-2xl aspect-video border border-slate-100 bg-slate-50 shadow-sm transition-all hover:shadow-xl hover:border-slate-200">
+    <div className="relative group overflow-hidden rounded-xl border border-slate-100 bg-slate-50 shadow-sm transition-all hover:shadow-xl hover:border-slate-200">
       <img
         src={thumbnail}
         alt={title}

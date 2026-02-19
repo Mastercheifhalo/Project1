@@ -10,7 +10,7 @@ export default function Home() {
       tier: "Monthly",
       price: "29",
       interval: "month",
-      features: ["Access to all courses", "Community support", "Weekly live Q&A", "Completion certificates"],
+      features: ["Access to all courses", "Community support", "Weekly live Q&A", "Downloadable resources"],
     },
     {
       tier: "Quarterly",

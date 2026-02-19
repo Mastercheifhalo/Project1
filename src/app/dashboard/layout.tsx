@@ -1,6 +1,5 @@
 import Sidebar from '@/components/dashboard/Sidebar';
 import AuraBackground from '@/components/dashboard/AuraBackground';
-import CommandK from '@/components/common/CommandK';
 
 export default function DashboardLayout({
     children,
@@ -13,7 +12,6 @@ export default function DashboardLayout({
     return (
         <div className="min-h-screen relative flex">
             <AuraBackground progress={progress} />
-            <CommandK />
             <Sidebar />
             <main className="flex-1 min-h-screen p-8 transition-all duration-500 pl-72">
                 <div className="max-w-6xl mx-auto">

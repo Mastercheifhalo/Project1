@@ -62,30 +62,6 @@ export default function DashboardPage() {
                     thumbnail="https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=2831&auto=format&fit=crop"
                 />
 
-                <div className="bg-white/40 backdrop-blur-md p-6 rounded-[2rem] border border-white/50 flex flex-wrap items-center gap-6 justify-between shadow-sm">
-                    <div className="flex items-center gap-6">
-                        <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg">
-                            <Users className="text-white w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Studying Now</p>
-                            <p className="text-lg font-black text-slate-900">1,284 students</p>
-                        </div>
-                    </div>
-                    <div className="flex -space-x-3">
-                        {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-sm">
-                                <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="avatar" />
-                            </div>
-                        ))}
-                        <div className="w-10 h-10 rounded-full bg-violet-100 border-2 border-white flex items-center justify-center text-[10px] font-black text-violet-600">
-                            +1k
-                        </div>
-                    </div>
-                    <button className="px-6 py-3 bg-violet-600 text-white font-bold rounded-xl hover:bg-violet-700 transition-all shadow-lg shadow-violet-600/20">
-                        Join Discussion
-                    </button>
-                </div>
             </div>
         </div>
     );
