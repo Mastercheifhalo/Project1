@@ -61,7 +61,7 @@ export async function getAdminUsers() {
         orderBy: { createdAt: 'desc' },
     });
 
-    return users.map(u => ({
+    return users.map((u: any) => ({
         id: u.id,
         name: u.name || 'Unnamed',
         email: u.email || '—',
