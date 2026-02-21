@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import TiltCard from '@/components/common/TiltCard';
 import { useRouter } from 'next/navigation';
 
 interface PricingCardProps {
@@ -16,11 +15,11 @@ export default function PricingCard({ tier, price, interval, features, isPopular
     const router = useRouter();
 
     const handlePurchase = () => {
-        router.push(`/checkout/crypto?plan=${encodeURIComponent(tier)}&price=${encodeURIComponent(price)}`);
+        router.push(`/checkout/crypto?type=subscription&plan=${encodeURIComponent(tier)}&price=${encodeURIComponent(price)}`);
     };
 
     return (
-        <TiltCard degree={isPopular ? 5 : 10} className="h-full">
+        <div className="h-full">
             <div className={`relative p-8 rounded-3xl border transition-all duration-300 group h-full ${isPopular ? 'border-violet-500 bg-white shadow-2xl shadow-violet-500/10 scale-105 z-10' : 'border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-slate-200'} flex flex-col`}>
                 {isPopular && (
                     <span className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-violet-600 text-white text-[10px] font-black rounded-full uppercase tracking-[0.2em] shadow-lg shadow-violet-600/20">
@@ -56,6 +55,6 @@ export default function PricingCard({ tier, price, interval, features, isPopular
                     Get {tier} Now
                 </button>
             </div>
-        </TiltCard>
+        </div>
     );
 }

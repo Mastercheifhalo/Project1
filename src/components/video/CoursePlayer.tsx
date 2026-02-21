@@ -7,9 +7,11 @@ import { Play, Maximize2, Volume2, RotateCcw, SkipForward } from 'lucide-react';
 interface CoursePlayerProps {
     thumbnail: string;
     title: string;
+    videoUrl?: string;
 }
 
-const CoursePlayer: React.FC<CoursePlayerProps> = ({ thumbnail, title }) => {
+const CoursePlayer: React.FC<CoursePlayerProps> = ({ thumbnail, title, videoUrl }) => {
+    const defaultVideo = "https://joy1.videvo.net/videvo_files/video/free/2019-11/large_watermarked/190828_27_Super_Slow_Motion_1080p_001_preview.mp4";
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(1);
     const [isMuted, setIsMuted] = useState(false);
@@ -78,12 +80,12 @@ const CoursePlayer: React.FC<CoursePlayerProps> = ({ thumbnail, title }) => {
         >
             <motion.div
                 layout
-                className={`relative bg-black transition-all duration-700 shadow-2xl overflow-hidden w-full aspect-video rounded-xl ${document.fullscreenElement ? 'rounded-none border-none' : ''}`}
+                className={`relative bg-black transition-all duration-700 shadow-2xl overflow-hidden w-full aspect-video rounded-xl ${(typeof document !== 'undefined' && document.fullscreenElement) ? 'rounded-none border-none' : ''}`}
             >
                 {/* Video Element */}
                 <video
                     ref={videoRef}
-                    src="https://joy1.videvo.net/videvo_files/video/free/2019-11/large_watermarked/190828_27_Super_Slow_Motion_1080p_001_preview.mp4"
+                    src={videoUrl || defaultVideo}
                     poster={thumbnail}
                     className="w-full h-full object-cover"
                     onTimeUpdate={handleTimeUpdate}

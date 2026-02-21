@@ -21,11 +21,7 @@ import {
 import Link from 'next/link';
 import ScrollReveal from '@/components/common/ScrollReveal';
 
-const WALLET_ADDRESSES: Record<string, string> = {
-    BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
-    USDT: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
-    USDC: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
-};
+// Wallet addresses are fetched server-side at runtime via /api/wallets
 
 const COIN_NAMES: Record<string, string> = {
     BTC: "Bitcoin",
@@ -35,8 +31,11 @@ const COIN_NAMES: Record<string, string> = {
 
 function CheckoutContent() {
     const searchParams = useSearchParams();
+    const type = searchParams.get('type') || 'subscription';
     const plan = searchParams.get('plan') || 'Monthly';
     const price = searchParams.get('price') || '29';
+    const courseId = searchParams.get('courseId');
+    const courseTitle = searchParams.get('courseTitle');
 
     const [selectedCoin, setSelectedCoin] = useState('USDT');
     const [copied, setCopied] = useState(false);
@@ -46,6 +45,8 @@ function CheckoutContent() {
     const [showToast, setShowToast] = useState(false);
     const [cryptoPrices, setCryptoPrices] = useState<Record<string, number>>({ BTC: 0, USDT: 1, USDC: 1 });
     const [isFetchingPrice, setIsFetchingPrice] = useState(true);
+    const [walletAddresses, setWalletAddresses] = useState<Record<string, string>>({});
+    const [walletError, setWalletError] = useState(false);
 
     useEffect(() => {
         const fetchPrices = async () => {
@@ -66,8 +67,15 @@ function CheckoutContent() {
         };
 
         fetchPrices();
-        const interval = setInterval(fetchPrices, 60000); // Update every minute
+        const interval = setInterval(fetchPrices, 60000);
         return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        fetch('/api/wallets')
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then((data: Record<string, string>) => setWalletAddresses(data))
+            .catch(() => setWalletError(true));
     }, []);
 
     const calculateCryptoAmount = () => {
@@ -85,7 +93,9 @@ function CheckoutContent() {
     }, [showToast]);
 
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(WALLET_ADDRESSES[selectedCoin]);
+        const addr = walletAddresses[selectedCoin];
+        if (!addr) return;
+        navigator.clipboard.writeText(addr);
         setCopied(true);
         setShowToast(true);
         setTimeout(() => setCopied(false), 2000);
@@ -97,7 +107,13 @@ function CheckoutContent() {
             const response = await fetch('/api/crypto/confirm', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ plan, price, coin: selectedCoin }),
+                body: JSON.stringify({
+                    type,
+                    plan: type === 'course' ? 'OneTime' : plan,
+                    price,
+                    coin: selectedCoin,
+                    courseId
+                }),
             });
 
             if (response.ok) {
@@ -189,10 +205,20 @@ function CheckoutContent() {
                                 {/* Compact Plan Card */}
                                 <div className="p-5 md:p-8 bg-slate-50 md:bg-white/[0.03] rounded-2xl md:rounded-[2rem] border border-slate-100 md:border-white/10 shadow-sm md:shadow-inner">
                                     <div className="flex flex-col gap-2 mb-6">
-                                        <p className="text-[10px] md:text-[11px] font-black text-slate-400 md:text-white/40 uppercase tracking-[0.2em]">{plan} Plan</p>
+                                        <p className="text-[10px] md:text-[11px] font-black text-slate-400 md:text-white/40 uppercase tracking-[0.2em]">
+                                            {type === 'course' ? 'One-Time Purchase' : `${plan} Plan`}
+                                        </p>
                                         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 group">
-                                            <p className="text-lg md:text-xl font-bold opacity-90 md:text-white leading-none">Access Pass</p>
-                                            <p className="text-2xl md:text-3xl lg:text-4xl font-black text-violet-600 md:text-white tracking-tight leading-none">${price}<span className="text-xs md:text-sm font-medium text-slate-400 md:text-white/40 ml-1">/{plan === 'Monthly' ? 'mo' : plan === 'Quarterly' ? '3mo' : 'yr'}</span></p>
+                                            <p className="text-lg md:text-xl font-bold opacity-90 md:text-white leading-none">
+                                                {type === 'course' ? courseTitle || 'Course Access' : 'Access Pass'}
+                                            </p>
+                                            <p className="text-2xl md:text-3xl lg:text-4xl font-black text-violet-600 md:text-white tracking-tight leading-none">${price}
+                                                {type !== 'course' && (
+                                                    <span className="text-xs md:text-sm font-medium text-slate-400 md:text-white/40 ml-1">
+                                                        /{plan === 'Monthly' ? 'mo' : plan === 'Quarterly' ? '3mo' : 'yr'}
+                                                    </span>
+                                                )}
+                                            </p>
                                         </div>
                                     </div>
 
@@ -328,7 +354,10 @@ function CheckoutContent() {
                                                 {/* Readable Wallet Box */}
                                                 <div className="relative group/input flex flex-col gap-3">
                                                     <div className="w-full bg-white border-2 border-slate-200 p-4 md:p-6 rounded-2xl text-[13px] md:text-sm font-mono text-slate-600 shadow-sm transition-all overflow-x-auto whitespace-nowrap scrollbar-hide flex items-center">
-                                                        {WALLET_ADDRESSES[selectedCoin]}
+                                                        {walletError
+                                                            ? <span className="text-red-400 font-sans text-xs">Payment address unavailable. Contact support.</span>
+                                                            : walletAddresses[selectedCoin] ?? <span className="animate-pulse text-slate-300">Loading address...</span>
+                                                        }
                                                     </div>
                                                     <button
                                                         onClick={copyToClipboard}

@@ -2,12 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, GraduationCap, PlayCircle, CreditCard, ArrowRight } from 'lucide-react';
+import { Menu, X, GraduationCap, PlayCircle, CreditCard, ArrowRight, LifeBuoy, LayoutDashboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === 'authenticated';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +23,7 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Courses', href: '/courses', icon: <PlayCircle className="w-4 h-4" /> },
     { name: 'Pricing', href: '/#pricing', icon: <CreditCard className="w-4 h-4" /> },
+    { name: 'Support', href: '/support', icon: <LifeBuoy className="w-4 h-4" /> },
   ];
 
   return (
@@ -54,12 +58,30 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              <Link
-                href="/login"
-                className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl shadow-lg shadow-slate-900/10 transition-all active:scale-95"
-              >
-                Sign In
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-violet-600/20 transition-all active:scale-95"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Link>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Link
+                    href="/login"
+                    className="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl shadow-lg shadow-slate-900/10 transition-all active:scale-95"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Mobile Toggle */}
@@ -99,13 +121,33 @@ const Navbar = () => {
                 </Link>
               ))}
 
-              <Link
-                href="/login"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full mt-4 py-5 bg-slate-900 text-white text-center text-xl font-black rounded-2xl shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-transform"
-              >
-                Sign In
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href="/dashboard"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full mt-4 py-5 bg-violet-600 text-white text-center text-xl font-black rounded-2xl shadow-xl shadow-violet-600/20 active:scale-[0.98] transition-transform flex items-center justify-center gap-3"
+                >
+                  <LayoutDashboard className="w-6 h-6" />
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full mt-4 py-5 bg-slate-900 text-white text-center text-xl font-black rounded-2xl shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-transform"
+                  >
+                    Get Started
+                  </Link>
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-4 text-slate-500 font-bold text-center text-base"
+                  >
+                    Already have an account? Sign in
+                  </Link>
+                </>
+              )}
 
               <div className="mt-12 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">
                 © 2026 CoursePro Platform

@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface MasterCoursePlayerProps {
     videoUrl: string;
-    thumbnail: string;
+    thumbnail?: string;
     onComplete?: () => void;
 }
 
@@ -126,7 +126,7 @@ const MasterCoursePlayer = ({ videoUrl, thumbnail, onComplete }: MasterCoursePla
 
     return (
         <div
-            className={`master-player-container relative group w-full aspect-video bg-black shadow-2xl border transition-all duration-300 ${document.fullscreenElement ? 'rounded-none border-none' : 'rounded-xl border-white/10'
+            className={`master-player-container relative group w-full aspect-video bg-black shadow-2xl border transition-all duration-300 ${(typeof document !== 'undefined' && document.fullscreenElement) ? 'rounded-none border-none' : 'rounded-xl border-white/10'
                 }`}
             onContextMenu={handleContextMenu}
             onMouseEnter={() => setIsHovering(true)}

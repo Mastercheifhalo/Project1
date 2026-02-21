@@ -3,7 +3,6 @@
 import React from 'react';
 import { Quote, Star } from 'lucide-react';
 import ScrollReveal from '@/components/common/ScrollReveal';
-import TiltCard from '@/components/common/TiltCard';
 
 const Testimonials = () => {
     const reviews = [
@@ -39,7 +38,7 @@ const Testimonials = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {reviews.map((review, index) => (
                     <ScrollReveal key={index} delay={index * 0.1}>
-                        <TiltCard degree={5} className="h-full">
+                        <div className="h-full">
                             <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative group hover:shadow-xl transition-all h-full">
                                 <Quote className="absolute top-8 right-8 w-12 h-12 text-slate-50 group-hover:text-violet-50 transition-colors" />
                                 <div className="relative z-10">
@@ -55,7 +54,7 @@ const Testimonials = () => {
                                     </div>
                                 </div>
                             </div>
-                        </TiltCard>
+                        </div>
                     </ScrollReveal>
                 ))}
             </div>

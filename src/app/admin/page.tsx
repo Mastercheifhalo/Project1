@@ -1,130 +1,102 @@
 'use client';
 
-import React from 'react';
-import { Users, BookOpen, CreditCard, TrendingUp, BarChart3, Activity } from 'lucide-react';
-import StatCard from '@/components/admin/StatCard';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { Users, BookOpen, DollarSign, TrendingUp, BarChart3, Activity } from 'lucide-react';
+import { getAdminOverviewStats } from '@/app/actions/admin';
 
-const AdminOverview = () => {
-    const [isMounted, setIsMounted] = React.useState(false);
+export default function AdminPage() {
+    const [stats, setStats] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
-    React.useEffect(() => {
-        setIsMounted(true);
+    useEffect(() => {
+        getAdminOverviewStats()
+            .then(data => { setStats(data); setLoading(false); })
+            .catch(() => setLoading(false));
     }, []);
 
-    const stats = [
-        {
-            title: 'Total Revenue',
-            value: '$124,592',
-            icon: CreditCard,
-            trend: { value: '12%', isUp: true },
-            color: 'emerald' as const
-        },
-        {
-            title: 'Active Students',
-            value: '8,432',
-            icon: Users,
-            trend: { value: '5%', isUp: true },
-            color: 'violet' as const
-        },
-        {
-            title: 'Course Sales',
-            value: '1,204',
-            icon: BookOpen,
-            trend: { value: '2%', isUp: false },
-            color: 'sky' as const
-        },
-        {
-            title: 'Avg. Engagement',
-            value: '76%',
-            icon: Activity,
-            trend: { value: '8%', isUp: true },
-            color: 'amber' as const
-        }
+    const cards = [
+        { name: 'Total Users', value: stats?.totalUsers ?? '—', icon: <Users className="w-5 h-5" />, color: 'bg-violet-100 text-violet-600', trend: '+12%' },
+        { name: 'Total Courses', value: stats?.totalCourses ?? '—', icon: <BookOpen className="w-5 h-5" />, color: 'bg-emerald-100 text-emerald-600', trend: '+3' },
+        { name: 'Enrollments', value: stats?.totalEnrollments ?? '—', icon: <TrendingUp className="w-5 h-5" />, color: 'bg-amber-100 text-amber-600', trend: `+${stats?.recentEnrollments ?? 0} this month` },
+        { name: 'Revenue', value: stats?.totalRevenue != null ? `$${stats.totalRevenue.toLocaleString()}` : '—', icon: <DollarSign className="w-5 h-5" />, color: 'bg-blue-100 text-blue-600', trend: `${stats?.totalPayments ?? 0} transactions` },
     ];
 
     return (
-        <div className="space-y-12">
+        <div className="space-y-6 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
             <div>
-                <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2 uppercase">Platform <span className="premium-gradient">Overview</span></h1>
-                <p className="text-slate-500 font-bold">Welcome back, Master Admin. Here's what's happening today.</p>
+                <h1 className="text-2xl md:text-4xl font-black mb-1 md:mb-2 tracking-tight text-slate-900 uppercase">Admin <span className="premium-gradient">Overview</span></h1>
+                <p className="text-slate-500 font-medium text-sm md:text-base">Monitor platform performance and key metrics.</p>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat, idx) => (
-                    <StatCard key={idx} {...stat} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                {cards.map((card) => (
+                    <div key={card.name} className={`bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 ${loading ? 'animate-pulse' : ''}`}>
+                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl ${card.color} flex items-center justify-center mb-3 md:mb-4 shadow-inner`}>
+                            {card.icon}
+                        </div>
+                        <p className="text-[10px] md:text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">{card.name}</p>
+                        <p className="text-2xl md:text-3xl font-black text-slate-900">{card.value}</p>
+                        <p className="text-xs font-bold text-emerald-500 mt-1">{card.trend}</p>
+                    </div>
                 ))}
             </div>
 
-            {/* Main Content Area */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Revenue Chart Placeholder or Alternative */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="lg:col-span-2 p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col items-center justify-center text-center min-h-[400px]"
-                >
-                    <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-4">
-                        <BarChart3 className="w-8 h-8 text-slate-300" />
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center">
+                            <Activity className="w-5 h-5 text-violet-600" />
+                        </div>
+                        <h2 className="text-lg font-black text-slate-900 tracking-tight">Recent Activity</h2>
                     </div>
-                    <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Analytics Coming Soon</h3>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2 max-w-[280px]">We're perfecting our real-time revenue tracking. Check back soon for deep insights.</p>
-                </motion.div>
-
-                {/* Top Courses */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/50"
-                >
-                    <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Top Courses</h3>
-                        <Activity className="w-5 h-5 text-slate-300" />
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                <TrendingUp className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-slate-700">{stats?.recentEnrollments ?? 0} new enrollments</p>
+                                <p className="text-xs font-medium text-slate-400">Last 30 days</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                                <DollarSign className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-slate-700">{stats?.totalPayments ?? 0} total transactions</p>
+                                <p className="text-xs font-medium text-slate-400">All time</p>
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-                    <div className="space-y-6">
-                        {[
-                            { title: 'Next.js Mastery', sales: '842', trend: '+12%', color: 'violet' },
-                            { title: 'UX Design Systems', sales: '614', trend: '+8%', color: 'sky' },
-                            { title: 'Fullstack Patterns', sales: '432', trend: '+5%', color: 'emerald' },
-                            { title: 'Modern CSS Grid', sales: '389', trend: '-2%', color: 'amber' },
-                        ].map((course, idx) => {
-                            const colorClasses = {
-                                violet: 'bg-violet-50 text-violet-600',
-                                sky: 'bg-sky-50 text-sky-600',
-                                emerald: 'bg-emerald-50 text-emerald-600',
-                                amber: 'bg-amber-50 text-amber-600'
-                            }[course.color as 'violet' | 'sky' | 'emerald' | 'amber'];
-
-                            return (
-                                <div key={idx} className="flex items-center justify-between group">
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 rounded-xl ${colorClasses} flex items-center justify-center font-black text-xs`}>
-                                            0{idx + 1}
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-black text-slate-900 group-hover:text-violet-600 transition-colors uppercase tracking-tight">{course.title}</p>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{course.sales} Students</p>
-                                        </div>
-                                    </div>
-                                    <span className={`text-[10px] font-black ${course.trend.startsWith('+') ? 'text-emerald-500' : 'text-red-400'}`}>
-                                        {course.trend}
-                                    </span>
-                                </div>
-                            );
-                        })}
+                <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                            <BarChart3 className="w-5 h-5 text-amber-600" />
+                        </div>
+                        <h2 className="text-lg font-black text-slate-900 tracking-tight">Platform Health</h2>
                     </div>
-
-                    <button className="w-full mt-10 py-3 rounded-2xl border border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 transition-all">
-                        View All Courses
-                    </button>
-                </motion.div>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-3">
+                            <span className="text-sm font-bold text-slate-500">Active Users</span>
+                            <span className="text-sm font-black text-slate-900">{stats?.totalUsers ?? 0}</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3">
+                            <span className="text-sm font-bold text-slate-500">Published Courses</span>
+                            <span className="text-sm font-black text-slate-900">{stats?.totalCourses ?? 0}</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3">
+                            <span className="text-sm font-bold text-slate-500">Revenue</span>
+                            <span className="text-sm font-black text-emerald-600">${(stats?.totalRevenue ?? 0).toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
-};
-
-export default AdminOverview;
+}

@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum UserRole {
+  ADMIN
+  STUDENT
+}
+
+model User {
+  id              String          @id @default(cuid())
+  name            String?
+  email           String?         @unique
+  emailVerified   DateTime?
+  password        String?
+  image           String?
+  role            UserRole        @default(STUDENT)
+  accounts        Account[]
+  sessions        Session[]
+  enrollments     Enrollment[]
+  courses         Course[]        // Courses created by admin
+  lessonProgress  LessonProgress[]
+  subscriptions   Subscription[]
+  payments        Payment[]
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Course {
+  id           String       @id @default(cuid())
+  title        String
+  slug         String       @unique
+  description  String?
+  thumbnail    String?
+  category     String       @default("Development")
+  level        String       @default("Beginner") // Beginner, Intermediate, Advanced, Expert
+  price        Float        @default(0) // 0 = free enroll; >0 = one-time purchase price
+  published    Boolean      @default(false)
+  createdById  String
+  createdBy    User         @relation(fields: [createdById], references: [id])
+  lessons      Lesson[]
+  enrollments  Enrollment[]
+  payments     Payment[]
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Lesson {
+  id             String           @id @default(cuid())
+  title          String
+  content        String?
+  videoUrl       String?
+  duration       Int?             // Duration in seconds
+  order          Int
+  isFree         Boolean          @default(false) // Free-tier preview lesson
+  courseId       String
+  course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonProgress LessonProgress[]
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model LessonProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String
+  completed   Boolean  @default(false)
+  watchedSecs Int      @default(0) // Seconds watched so far
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, lessonId])
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId   String
+  status    String   @default("ACTIVE") // ACTIVE, COMPLETED, CANCELLED
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId])
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  userId    String
+  plan      String   // Monthly, Quarterly, Annual
+  status    String   @default("ACTIVE") // ACTIVE, EXPIRED, CANCELLED
+  startDate DateTime @default(now())
+  endDate   DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Float
+  currency  String   // USD
+  method    String   // CRYPTO, CARD
+  coin      String?  // BTC, USDT, USDC (if crypto)
+  plan      String   // Monthly, Quarterly, Annual, OneTime
+  status    String   @default("PENDING") // PENDING, CONFIRMED, FAILED
+  courseId  String?  // null = subscription payment; set = one-time course purchase
+  course    Course?  @relation(fields: [courseId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

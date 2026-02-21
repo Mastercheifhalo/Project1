@@ -1,120 +1,159 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { DollarSign, Download, Filter, TrendingUp, ArrowUpRight, ArrowDownRight, CreditCard, Wallet, Banknote } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { DollarSign, ArrowUpRight, ArrowDownRight, CreditCard, Search } from 'lucide-react';
+import { getAdminRevenue } from '@/app/actions/admin';
 
-const mockTransactions = [
-    { id: 'TX-9012', user: 'Sarah Connor', amount: '$29.00', status: 'Completed', date: 'Feb 16, 2026', method: 'Crypto' },
-    { id: 'TX-9011', user: 'Alex Rivera', amount: '$49.00', status: 'Completed', date: 'Feb 16, 2026', method: 'Card' },
-    { id: 'TX-9010', user: 'James Knight', amount: '$99.00', status: 'Refunded', date: 'Feb 15, 2026', method: 'Crypto' },
-    { id: 'TX-9009', user: 'Emma Wilson', amount: '$29.00', status: 'Completed', date: 'Feb 15, 2026', method: 'Card' },
-    { id: 'TX-9008', user: 'David Miller', amount: '$49.00', status: 'Completed', date: 'Feb 14, 2026', method: 'Crypto' },
-];
+type PaymentData = {
+    id: string;
+    userName: string;
+    userEmail: string;
+    amount: number;
+    currency: string;
+    method: string;
+    coin: string | null;
+    plan: string;
+    status: string;
+    date: string;
+};
 
-const RevenuePage = () => {
-    const [isMounted, setIsMounted] = React.useState(false);
+export default function AdminRevenuePage() {
+    const [payments, setPayments] = useState<PaymentData[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    React.useEffect(() => {
-        setIsMounted(true);
+    useEffect(() => {
+        getAdminRevenue()
+            .then(data => { setPayments(data); setLoading(false); })
+            .catch(() => setLoading(false));
     }, []);
 
+    const totalRevenue = payments.filter(p => p.status === 'CONFIRMED').reduce((sum, p) => sum + p.amount, 0);
+    const pendingRevenue = payments.filter(p => p.status === 'PENDING').reduce((sum, p) => sum + p.amount, 0);
+    const confirmedCount = payments.filter(p => p.status === 'CONFIRMED').length;
+
+    const filtered = payments.filter(p =>
+        p.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.plan.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const statusColor = (status: string) => {
+        switch (status) {
+            case 'CONFIRMED': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+            case 'PENDING': return 'bg-amber-50 text-amber-600 border-amber-100';
+            case 'FAILED': return 'bg-red-50 text-red-600 border-red-100';
+            default: return 'bg-slate-50 text-slate-600 border-slate-100';
+        }
+    };
+
     return (
-        <div className="space-y-12">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2 uppercase">Revenue <span className="premium-gradient">Analytics</span></h1>
-                    <p className="text-slate-500 font-bold text-sm tracking-tight">Monitor your financial performance and transaction history.</p>
-                </div>
-                <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-100 rounded-2xl font-bold text-slate-900 shadow-sm hover:bg-slate-50 transition-all">
-                    <Download className="w-5 h-5" />
-                    Export Report
-                </button>
+        <div className="space-y-6 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div>
+                <h1 className="text-2xl md:text-4xl font-black mb-1 md:mb-2 tracking-tight text-slate-900 uppercase">Revenue <span className="premium-gradient">Analytics</span></h1>
+                <p className="text-slate-500 font-medium text-sm md:text-base">Track payments and financial performance.</p>
             </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                    { label: 'Total Revenue', value: '$124,592', icon: Wallet, color: 'violet' },
-                    { label: 'Monthly Growth', value: '+12.5%', icon: TrendingUp, color: 'emerald' },
-                    { label: 'Pending Payouts', value: '$12,400', icon: Banknote, color: 'amber' },
-                ].map((stat, i) => (
-                    <div key={i} className="p-8 rounded-[2rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/40 flex items-center gap-6">
-                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg ${stat.color === 'violet' ? 'bg-violet-600 shadow-violet-600/20' :
-                            stat.color === 'emerald' ? 'bg-emerald-600 shadow-emerald-600/20' :
-                                'bg-amber-600 shadow-amber-600/20'
-                            }`}>
-                            <stat.icon className="w-7 h-7" />
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+                <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl border border-slate-100 shadow-sm">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                            <ArrowUpRight className="w-5 h-5 text-emerald-600" />
                         </div>
-                        <div>
-                            <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{stat.label}</p>
-                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stat.value}</h3>
-                        </div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Confirmed Revenue</span>
                     </div>
-                ))}
+                    <p className="text-3xl font-black text-slate-900">${totalRevenue.toLocaleString()}</p>
+                    <p className="text-xs font-bold text-emerald-500 mt-1">{confirmedCount} transactions</p>
+                </div>
+                <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl border border-slate-100 shadow-sm">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                            <DollarSign className="w-5 h-5 text-amber-600" />
+                        </div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending</span>
+                    </div>
+                    <p className="text-3xl font-black text-slate-900">${pendingRevenue.toLocaleString()}</p>
+                    <p className="text-xs font-bold text-amber-500 mt-1">Awaiting confirmation</p>
+                </div>
+                <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl border border-slate-100 shadow-sm">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                            <CreditCard className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Txns</span>
+                    </div>
+                    <p className="text-3xl font-black text-slate-900">{payments.length}</p>
+                    <p className="text-xs font-bold text-blue-500 mt-1">All time</p>
+                </div>
             </div>
 
-            {/* Chart Area Replacement */}
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 p-12 shadow-2xl shadow-slate-200/40 flex flex-col items-center justify-center text-center text-center min-h-[350px]">
-                <div className="w-20 h-20 rounded-[2rem] bg-slate-50 flex items-center justify-center mb-6">
-                    <TrendingUp className="w-10 h-10 text-slate-300" />
-                </div>
-                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Financial Insights Pending</h3>
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-3 max-w-sm">We're updating our data engine for peak accuracy. Interactive performance charts will return shortly.</p>
+            {/* Search */}
+            <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                    type="text"
+                    placeholder="Search transactions..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-11 pr-4 py-3 bg-white border border-slate-100 rounded-2xl text-sm font-medium outline-none focus:border-violet-500 transition-all shadow-sm w-full md:w-72"
+                />
             </div>
 
             {/* Transactions Table */}
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl shadow-slate-200/40 overflow-hidden overflow-x-auto">
-                <div className="p-8 border-b border-slate-50 flex items-center justify-between">
-                    <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Recent Transactions</h3>
-                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors">
-                        <Filter className="w-4 h-4" />
-                        Filter
-                    </button>
-                </div>
-                <table className="w-full border-collapse">
-                    <thead>
-                        <tr className="bg-slate-50/50">
-                            <th className="text-left px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Order ID</th>
-                            <th className="text-left px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Student</th>
-                            <th className="text-left px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Amount</th>
-                            <th className="text-left px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Method</th>
-                            <th className="text-left px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                        {mockTransactions.map((tx) => (
-                            <tr key={tx.id} className="hover:bg-slate-50/30 transition-colors">
-                                <td className="px-8 py-6 font-black text-slate-900 text-sm">{tx.id}</td>
-                                <td className="px-8 py-6">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400 uppercase">
-                                            {tx.user.charAt(0)}
-                                        </div>
-                                        <p className="text-sm font-bold text-slate-600">{tx.user}</p>
-                                    </div>
-                                </td>
-                                <td className="px-8 py-6 font-black text-slate-900 text-sm">{tx.amount}</td>
-                                <td className="px-8 py-6">
-                                    <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-                                        {tx.method === 'Crypto' ? <Wallet className="w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
-                                        {tx.method}
-                                    </div>
-                                </td>
-                                <td className="px-8 py-6">
-                                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.1em] ${tx.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
-                                        }`}>
-                                        {tx.status}
-                                    </div>
-                                </td>
-                            </tr>
+            <div className="bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+                {loading ? (
+                    <div className="p-8 space-y-4 animate-pulse">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="h-14 bg-slate-50 rounded-xl" />
                         ))}
-                    </tbody>
-                </table>
+                    </div>
+                ) : filtered.length === 0 ? (
+                    <div className="p-16 text-center">
+                        <DollarSign className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                        <p className="text-lg font-bold text-slate-400">No transactions yet</p>
+                        <p className="text-sm font-medium text-slate-300 mt-1">Revenue data will appear here once payments are processed.</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b border-slate-100">
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Plan</th>
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</th>
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden sm:table-cell">Method</th>
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filtered.map(payment => (
+                                    <tr key={payment.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <p className="text-sm font-bold text-slate-900 truncate max-w-[140px]">{payment.userName}</p>
+                                            <p className="text-xs font-medium text-slate-400 truncate max-w-[140px]">{payment.userEmail}</p>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm font-bold text-slate-700 hidden md:table-cell">{payment.plan}</td>
+                                        <td className="px-6 py-4 text-sm font-black text-slate-900">${payment.amount}</td>
+                                        <td className="px-6 py-4 hidden sm:table-cell">
+                                            <span className="text-xs font-bold text-slate-500">
+                                                {payment.method}{payment.coin ? ` (${payment.coin})` : ''}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-flex px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${statusColor(payment.status)}`}>
+                                                {payment.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm font-medium text-slate-400 hidden lg:table-cell">{payment.date}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
         </div>
     );
-};
-
-export default RevenuePage;
+}

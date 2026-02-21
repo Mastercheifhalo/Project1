@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { useAdmin } from '@/context/AdminContext';
 import {
@@ -130,7 +131,10 @@ const AdminSidebar = () => {
                         </div>
                         {!isCollapsed && <span className="text-sm">Collapse Menu</span>}
                     </button>
-                    <button className="w-full flex items-center gap-3 p-3 rounded-2xl font-bold text-red-500/80 hover:bg-red-50 hover:text-red-700 transition-all active:scale-95 group">
+                    <button
+                        onClick={() => signOut({ callbackUrl: '/login' })}
+                        className="w-full flex items-center gap-3 p-3 rounded-2xl font-bold text-red-500/80 hover:bg-red-50 hover:text-red-700 transition-all active:scale-95 group"
+                    >
                         <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                         {!isCollapsed && <span className="text-sm">Sign Out</span>}
                     </button>
