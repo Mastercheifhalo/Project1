@@ -25,6 +25,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     return null;
                 }
 
+                if (user.status === 'SUSPENDED') {
+                    console.log(`[Auth] Denying login for suspended user: ${credentials.email}`);
+                    return null;
+                }
+
                 const isPasswordValid = await bcrypt.compare(
                     credentials.password as string,
                     user.password
@@ -39,26 +44,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     email: user.email,
                     name: user.name,
                     role: user.role,
+                    status: user.status,
                 };
             },
         }),
     ],
     callbacks: {
         ...authConfig.callbacks,
-        async jwt({ token, user }) {
-            if (user) {
-                token.id = user.id;
-                token.role = (user as any).role;
-            }
-            return token;
-        },
-        async session({ session, token }) {
-            if (token && session.user) {
-                (session.user as any).id = token.id;
-                (session.user as any).role = token.role;
-            }
-            return session;
-        },
     },
     session: {
         strategy: "jwt",

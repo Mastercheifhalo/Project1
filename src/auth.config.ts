@@ -10,11 +10,17 @@ export const authConfig = {
     callbacks: {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
+            const isSuspended = auth?.user?.status === "SUSPENDED";
             const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
             const isOnAdmin = nextUrl.pathname.startsWith("/admin");
 
+            if (isSuspended) {
+                console.log(`[Auth] Blocking suspended user: ${auth?.user?.email}`);
+                return false; // Deny access
+            }
+
             if (isOnAdmin) {
-                if (isLoggedIn && (auth.user as any).role === "ADMIN") return true;
+                if (isLoggedIn && auth.user.role === "ADMIN") return true;
                 return false; // Redirect to login
             }
             if (isOnDashboard) {
@@ -22,6 +28,22 @@ export const authConfig = {
                 return false; // Redirect to login
             }
             return true;
+        },
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id as string;
+                token.role = user.role as string;
+                token.status = user.status as string;
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (token && session.user) {
+                session.user.id = token.id;
+                session.user.role = token.role;
+                session.user.status = token.status;
+            }
+            return session;
         },
     },
 } satisfies NextAuthConfig;

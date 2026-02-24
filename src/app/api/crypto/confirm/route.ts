@@ -15,13 +15,31 @@ export async function POST(request: Request) {
     try {
         const userId = session.user.id;
         const body = await request.json();
-        const { type, plan, price, coin, courseId } = body;
+        const { type, plan, coin, courseId } = body;
+        let { price } = body; // We'll overwrite this with server-side truth
 
-        if (!price || !coin || (!plan && type !== 'course')) {
+        if (!coin || (!plan && type !== 'course')) {
             return NextResponse.json(
-                { success: false, message: 'Missing required fields: price, coin, and either plan or courseId.' },
+                { success: false, message: 'Missing required fields: coin, and either plan or courseId.' },
                 { status: 400 }
             );
+        }
+
+        // ─── Server-Side Price Verification ───────────────────────────────────
+        if (type === 'course') {
+            if (!courseId) return NextResponse.json({ success: false, message: 'courseId required' }, { status: 400 });
+            const course = await prisma.course.findUnique({ where: { id: courseId }, select: { price: true } });
+            if (!course) return NextResponse.json({ success: false, message: 'Course not found' }, { status: 404 });
+            price = course.price.toString();
+        } else {
+            // Subscription prices from source of truth
+            const PRICES: Record<string, string> = {
+                'Monthly': '29',
+                'Quarterly': '79',
+                'Annual': '249'
+            };
+            if (!plan || !PRICES[plan]) return NextResponse.json({ success: false, message: 'Invalid plan' }, { status: 400 });
+            price = PRICES[plan];
         }
 
         const validCoins = ['BTC', 'USDT', 'USDC'];
@@ -40,7 +58,7 @@ export async function POST(request: Request) {
                 currency: 'USD',
                 method: 'CRYPTO',
                 coin,
-                plan, // "OneTime" | "Monthly" | "Quarterly" | "Annual"
+                plan: type === 'course' ? 'OneTime' : plan,
                 status: 'PENDING',
                 courseId: type === 'course' ? courseId : null,
             },
@@ -50,8 +68,8 @@ export async function POST(request: Request) {
         if (type === 'course' && courseId) {
             await prisma.enrollment.upsert({
                 where: { userId_courseId: { userId, courseId } },
-                update: { status: 'ACTIVE' },
-                create: { userId, courseId, status: 'ACTIVE' },
+                update: { status: 'PENDING' },
+                create: { userId, courseId, status: 'PENDING' },
             });
         } else if (type === 'subscription' && plan) {
             const now = new Date();
@@ -64,7 +82,7 @@ export async function POST(request: Request) {
                 data: {
                     userId,
                     plan,
-                    status: 'ACTIVE',
+                    status: 'PENDING',
                     startDate: now,
                     endDate,
                 },

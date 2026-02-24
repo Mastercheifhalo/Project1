@@ -45,7 +45,15 @@ function LoginForm() {
             if (result?.error) {
                 setError("Invalid email or password. Please try again.");
             } else {
-                router.push("/dashboard");
+                // Determine redirect based on role
+                const res = await fetch('/api/auth/session');
+                const session = await res.json();
+
+                if (session?.user?.role === 'ADMIN') {
+                    router.push("/admin");
+                } else {
+                    router.push("/dashboard");
+                }
                 router.refresh();
             }
         } catch (err) {

@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard,
@@ -14,6 +14,7 @@ import {
     GraduationCap,
     ChevronLeft,
     ChevronRight,
+    ShieldCheck,
     X
 } from 'lucide-react';
 
@@ -25,6 +26,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
     const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = React.useState(false);
+    const { data: session } = useSession();
+    const isAdmin = (session?.user as any)?.role === 'ADMIN';
 
     const navLinks = [
         { name: 'Overview', href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
@@ -119,6 +122,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
                         </Link>
                     );
                 })}
+
+                {isAdmin && (
+                    <Link
+                        href="/admin"
+                        onClick={handleNavClick}
+                    >
+                        <motion.div
+                            whileHover={{ x: 4 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`flex items-center gap-3 p-3 rounded-2xl font-bold bg-amber-50/50 text-amber-600 hover:bg-amber-100/50 hover:text-amber-700 transition-all group mt-6`}
+                        >
+                            <div className="text-amber-500 group-hover:text-amber-600 transition-colors">
+                                <ShieldCheck className="w-5 h-5" />
+                            </div>
+                            {!isCollapsed && (
+                                <span className="tracking-tight uppercase text-[10px] font-black tracking-widest">Admin Panel</span>
+                            )}
+                        </motion.div>
+                    </Link>
+                )}
             </nav>
 
             {/* Footer */}

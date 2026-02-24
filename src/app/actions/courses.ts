@@ -26,7 +26,18 @@ export async function canAccessLesson(lessonId: string): Promise<'free' | 'subsc
 
     const session = await auth();
     if (!session?.user) return 'locked';
-    const userId = (session.user as any).id;
+    const userId = session.user.id;
+
+    // Zero-Trust: Check user status directly from DB to catch real-time suspension
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { status: true },
+    });
+
+    if (!user || user.status === 'SUSPENDED') {
+        console.log(`[Access Control] Denying access to suspended or missing user: ${userId}`);
+        return 'locked';
+    }
 
     // Check active subscription
     const subscription = await prisma.subscription.findFirst({
@@ -38,7 +49,7 @@ export async function canAccessLesson(lessonId: string): Promise<'free' | 'subsc
     const enrollment = await prisma.enrollment.findUnique({
         where: { userId_courseId: { userId, courseId: lesson.courseId } },
     });
-    if (enrollment) return 'purchased';
+    if (enrollment && enrollment.status === 'ACTIVE') return 'purchased';
 
     return 'locked';
 }
@@ -50,7 +61,7 @@ export async function getCourseBySlug(slug: string) {
         where: { slug },
         include: {
             lessons: {
-                select: { id: true, title: true, duration: true, order: true, isFree: true },
+                select: { id: true, title: true, duration: true, order: true, isFree: true } as any,
                 orderBy: { order: 'asc' },
             },
             createdBy: {
@@ -70,7 +81,7 @@ export async function getCourseBySlug(slug: string) {
     let hasSubscription = false;
 
     if (session?.user) {
-        const userId = (session.user as any).id;
+        const userId = session.user.id;
         const [enrollment, subscription] = await Promise.all([
             prisma.enrollment.findUnique({
                 where: { userId_courseId: { userId, courseId: course.id } },
@@ -96,10 +107,10 @@ export async function getCourseBySlug(slug: string) {
         level: course.level,
         price: course.price,
         published: course.published,
-        createdBy: course.createdBy,
-        enrollmentCount: course._count.enrollments,
+        createdBy: (course as any).createdBy,
+        enrollmentCount: (course as any)._count.enrollments,
         isEnrolled: hasAccess,
-        lessons: course.lessons.map(l => ({
+        lessons: (course as any).lessons.map((l: any) => ({
             id: l.id,
             title: l.title,
             duration: l.duration,
@@ -116,7 +127,7 @@ export async function getAllPublishedCourses() {
         where: { published: true },
         include: {
             lessons: {
-                select: { id: true, duration: true, isFree: true },
+                select: { id: true, duration: true, isFree: true } as any,
             },
             _count: {
                 select: { enrollments: true },
@@ -135,9 +146,9 @@ export async function getAllPublishedCourses() {
         level: course.level,
         price: course.price,
         lessonCount: course.lessons.length,
-        hasFreeLesson: course.lessons.some(l => l.isFree),
-        totalDuration: course.lessons.reduce((sum, l) => sum + (l.duration || 0), 0),
-        enrollmentCount: course._count.enrollments,
+        hasFreeLesson: (course as any).lessons.some((l: any) => l.isFree),
+        totalDuration: (course as any).lessons.reduce((sum: number, l: any) => sum + (l.duration || 0), 0),
+        enrollmentCount: (course as any)._count.enrollments,
     }));
 }
 
@@ -172,7 +183,7 @@ export async function getLessonById(lessonId: string) {
         videoUrl: lesson.videoUrl,
         duration: lesson.duration,
         order: lesson.order,
-        isFree: lesson.isFree,
+        isFree: (lesson as any).isFree,
         course: {
             id: lesson.course.id,
             title: lesson.course.title,
@@ -189,7 +200,7 @@ export async function enrollInCourse(courseId: string) {
     const session = await auth();
     if (!session?.user) return { error: 'Not authenticated' };
 
-    const userId = (session.user as any).id;
+    const userId = session.user.id;
 
     // Check if already enrolled
     const existing = await prisma.enrollment.findUnique({

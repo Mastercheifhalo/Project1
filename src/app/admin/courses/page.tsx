@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
-import { Search, Plus, BookOpen, Trash2, Eye, EyeOff, X, Loader2 } from 'lucide-react';
+import { Search, Plus, BookOpen, Trash2, Eye, EyeOff, X, Loader2, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -9,6 +9,7 @@ import {
     createCourse,
     deleteCourse,
     toggleCoursePublished,
+    generateSlug,
 } from '@/app/actions/admin';
 
 type CourseRow = {
@@ -58,12 +59,13 @@ export default function CoursesAdminPage() {
         startTransition(async () => {
             const result = await createCourse({
                 title: form.title.trim(),
-                description: form.description.trim() || undefined,
+                description: form.description.trim() || "",
                 category: form.category,
                 level: form.level,
                 price: parseFloat(form.price) || 0,
+                slug: generateSlug(form.title.trim())
             });
-            if (result.success) {
+            if (result && result.success) {
                 setShowCreateModal(false);
                 setForm({ title: '', description: '', category: 'Development', level: 'Beginner', price: '0' });
                 loadCourses();
@@ -194,6 +196,13 @@ export default function CoursesAdminPage() {
                                             >
                                                 {course.published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-emerald-500" />}
                                             </button>
+                                            <Link
+                                                href={`/admin/courses/${course.id}`}
+                                                className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all"
+                                                title="Edit course"
+                                            >
+                                                <Settings className="w-4 h-4" />
+                                            </Link>
                                             <button
                                                 onClick={() => handleDelete(course.id, course.title)}
                                                 className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"

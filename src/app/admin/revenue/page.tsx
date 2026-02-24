@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownRight, CreditCard, Search } from 'lucide-react';
-import { getAdminRevenue } from '@/app/actions/admin';
+import { getAdminRevenue, activatePayment } from '@/app/actions/admin';
 
 type PaymentData = {
     id: string;
@@ -21,12 +21,33 @@ export default function AdminRevenuePage() {
     const [payments, setPayments] = useState<PaymentData[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [activatingId, setActivatingId] = useState<string | null>(null);
 
-    useEffect(() => {
+    const loadPayments = () => {
+        setLoading(true);
         getAdminRevenue()
             .then(data => { setPayments(data); setLoading(false); })
             .catch(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        loadPayments();
     }, []);
+
+    const handleActivate = async (id: string) => {
+        if (!confirm('Are you sure you want to activate this payment? This will grant the user immediate access.')) return;
+
+        setActivatingId(id);
+        try {
+            await activatePayment(id);
+            loadPayments(); // Refresh list
+        } catch (error) {
+            console.error('Failed to activate:', error);
+            alert('Failed to activate payment. See console for details.');
+        } finally {
+            setActivatingId(null);
+        }
+    };
 
     const totalRevenue = payments.filter(p => p.status === 'CONFIRMED').reduce((sum, p) => sum + p.amount, 0);
     const pendingRevenue = payments.filter(p => p.status === 'PENDING').reduce((sum, p) => sum + p.amount, 0);
@@ -51,7 +72,7 @@ export default function AdminRevenuePage() {
         <div className="space-y-6 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div>
                 <h1 className="text-2xl md:text-4xl font-black mb-1 md:mb-2 tracking-tight text-slate-900 uppercase">Revenue <span className="premium-gradient">Analytics</span></h1>
-                <p className="text-slate-500 font-medium text-sm md:text-base">Track payments and financial performance.</p>
+                <p className="text-slate-500 font-medium text-sm md:text-base">Track payments and manage manual fulfillment.</p>
             </div>
 
             {/* Summary Cards */}
@@ -124,7 +145,7 @@ export default function AdminRevenuePage() {
                                     <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</th>
                                     <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden sm:table-cell">Method</th>
                                     <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell">Date</th>
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -146,7 +167,19 @@ export default function AdminRevenuePage() {
                                                 {payment.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-medium text-slate-400 hidden lg:table-cell">{payment.date}</td>
+                                        <td className="px-6 py-4 text-right">
+                                            {payment.status === 'PENDING' ? (
+                                                <button
+                                                    onClick={() => handleActivate(payment.id)}
+                                                    disabled={activatingId === payment.id}
+                                                    className="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-md shadow-violet-600/10 active:scale-95 disabled:opacity-50"
+                                                >
+                                                    {activatingId === payment.id ? 'Processing...' : 'Verify & Activate'}
+                                                </button>
+                                            ) : (
+                                                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Verified</span>
+                                            )}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

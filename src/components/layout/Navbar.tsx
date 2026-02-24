@@ -58,6 +58,15 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
+              {isLoggedIn && (session.user as any)?.role === 'ADMIN' && (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-violet-600 transition-colors mr-4"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  Admin Panel
+                </Link>
+              )}
               {isLoggedIn ? (
                 <Link
                   href="/dashboard"
@@ -120,6 +129,22 @@ const Navbar = () => {
                   <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-violet-600 transition-colors" />
                 </Link>
               ))}
+
+              {isLoggedIn && (session.user as any)?.role === 'ADMIN' && (
+                <Link
+                  href="/admin"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center justify-between p-5 rounded-2xl bg-amber-50 hover:bg-amber-100 transition-all border border-amber-100 group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-amber-600 shadow-sm transition-colors">
+                      <CreditCard className="w-6 h-6" />
+                    </div>
+                    <span className="text-xl font-black text-slate-900">Admin Panel</span>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-amber-300 group-hover:text-amber-600 transition-colors" />
+                </Link>
+              )}
 
               {isLoggedIn ? (
                 <Link
