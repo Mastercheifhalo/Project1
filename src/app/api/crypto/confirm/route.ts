@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
+import fs from 'fs/promises';
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: Request) {
     // Auth guard — only authenticated users can confirm a payment
@@ -15,7 +18,7 @@ export async function POST(request: Request) {
     try {
         const userId = session.user.id;
         const body = await request.json();
-        const { type, plan, coin, courseId } = body;
+        const { type, plan, coin, courseId, screenshot } = body;
         let { price } = body; // We'll overwrite this with server-side truth
 
         if (!coin || (!plan && type !== 'course')) {
@@ -50,6 +53,27 @@ export async function POST(request: Request) {
             );
         }
 
+        // ─── Handle Screenshot ───────────────────────────────────────────────
+        let screenshotPath = null;
+        if (screenshot) {
+            try {
+                // Ensure directory exists
+                const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'payments');
+                await fs.mkdir(uploadDir, { recursive: true });
+
+                // Process base64
+                const base64Data = screenshot.replace(/^data:image\/\w+;base64,/, "");
+                const fileName = `proof_${Date.now()}_${uuidv4().slice(0, 8)}.png`;
+                const filePath = path.join(uploadDir, fileName);
+
+                await fs.writeFile(filePath, Buffer.from(base64Data, 'base64'));
+                screenshotPath = `/uploads/payments/${fileName}`;
+            } catch (err) {
+                console.error("Screenshot save failed:", err);
+                // We keep going, but log the error
+            }
+        }
+
         // Create Payment record
         const payment = await prisma.payment.create({
             data: {
@@ -61,6 +85,7 @@ export async function POST(request: Request) {
                 plan: type === 'course' ? 'OneTime' : plan,
                 status: 'PENDING',
                 courseId: type === 'course' ? courseId : null,
+                screenshot: screenshotPath,
             },
         });
 
@@ -89,10 +114,7 @@ export async function POST(request: Request) {
             });
         }
 
-        console.log(
-            `[CRYPTO PAYMENT CREATED] User: ${userId} | ID: ${payment.id} | ` +
-            `Type: ${type} | Plan: ${plan} | Price: $${price} | Coin: ${coin}`
-        );
+        // Payment record is created in DB — no need to log PII to server output
 
         return NextResponse.json({
             success: true,

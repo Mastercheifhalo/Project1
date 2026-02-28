@@ -16,7 +16,8 @@ import {
     GraduationCap,
     ChevronLeft,
     ChevronRight,
-    ShieldCheck
+    ShieldCheck,
+    ClipboardList
 } from 'lucide-react';
 
 const AdminSidebar = () => {
@@ -28,6 +29,7 @@ const AdminSidebar = () => {
         { name: 'Users', href: '/admin/users', icon: <Users className="w-5 h-5" /> },
         { name: 'Courses', href: '/admin/courses', icon: <BookOpen className="w-5 h-5" /> },
         { name: 'Revenue', href: '/admin/revenue', icon: <BarChart3 className="w-5 h-5" /> },
+        { name: 'Audit Log', href: '/admin/audit', icon: <ClipboardList className="w-5 h-5" /> },
         { name: 'Settings', href: '/admin/settings', icon: <Settings className="w-5 h-5" /> },
     ];
 

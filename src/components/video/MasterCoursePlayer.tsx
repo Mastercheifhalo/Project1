@@ -17,13 +17,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface MasterCoursePlayerProps {
     videoUrl: string;
     thumbnail?: string;
+    initialTime?: number;
     onComplete?: () => void;
+    onTimeUpdate?: (currentTime: number, duration: number) => void;
 }
 
-const MasterCoursePlayer = ({ videoUrl, thumbnail, onComplete }: MasterCoursePlayerProps) => {
+const MasterCoursePlayer = ({ videoUrl, thumbnail, initialTime = 0, onComplete, onTimeUpdate }: MasterCoursePlayerProps) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [progress, setProgress] = useState(0);
+    const [isLoaded, setIsLoaded] = useState(false);
     const [volume, setVolume] = useState(1);
     const [isMuted, setIsMuted] = useState(false);
     const [showControls, setShowControls] = useState(true);
@@ -46,6 +49,16 @@ const MasterCoursePlayer = ({ videoUrl, thumbnail, onComplete }: MasterCoursePla
         if (videoRef.current) {
             const currentProgress = (videoRef.current.currentTime / videoRef.current.duration) * 100;
             setProgress(currentProgress);
+            if (onTimeUpdate) {
+                onTimeUpdate(videoRef.current.currentTime, videoRef.current.duration);
+            }
+        }
+    };
+
+    const handleLoadedMetadata = () => {
+        if (videoRef.current && initialTime > 0 && !isLoaded) {
+            videoRef.current.currentTime = initialTime;
+            setIsLoaded(true);
         }
     };
 
@@ -132,7 +145,7 @@ const MasterCoursePlayer = ({ videoUrl, thumbnail, onComplete }: MasterCoursePla
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
         >
-            <style jsx global>{`
+            <style>{`
                 .master-player-container:fullscreen {
                     border-radius: 0 !important;
                     border: none !important;
@@ -150,6 +163,8 @@ const MasterCoursePlayer = ({ videoUrl, thumbnail, onComplete }: MasterCoursePla
                 poster={thumbnail}
                 className="w-full h-full object-cover"
                 onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onEnded={onComplete}
                 onClick={togglePlay}
                 playsInline
                 disablePictureInPicture

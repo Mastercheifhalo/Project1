@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { DollarSign, ArrowUpRight, ArrowDownRight, CreditCard, Search } from 'lucide-react';
-import { getAdminRevenue, activatePayment } from '@/app/actions/admin';
+import { DollarSign, ArrowUpRight, ArrowDownRight, CreditCard, Search, Eye, X, ImageIcon, TrendingUp } from 'lucide-react';
+import { getAdminRevenue, activatePayment, getRevenueChartData } from '@/app/actions/admin';
+import RevenueChart from '@/components/admin/RevenueChart';
 
 type PaymentData = {
     id: string;
@@ -14,6 +15,7 @@ type PaymentData = {
     coin: string | null;
     plan: string;
     status: string;
+    screenshot: string | null;
     date: string;
 };
 
@@ -22,17 +24,29 @@ export default function AdminRevenuePage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [activatingId, setActivatingId] = useState<string | null>(null);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [chartData, setChartData] = useState<{ date: string; revenue: number }[]>([]);
+    const [chartDays, setChartDays] = useState(30);
 
-    const loadPayments = () => {
+    const loadData = async () => {
         setLoading(true);
-        getAdminRevenue()
-            .then(data => { setPayments(data); setLoading(false); })
-            .catch(() => setLoading(false));
+        try {
+            const [paymentsData, revenueData] = await Promise.all([
+                getAdminRevenue(),
+                getRevenueChartData(chartDays)
+            ]);
+            setPayments(paymentsData);
+            setChartData(revenueData);
+        } catch (error) {
+            console.error('Failed to load data:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
-        loadPayments();
-    }, []);
+        loadData();
+    }, [chartDays]);
 
     const handleActivate = async (id: string) => {
         if (!confirm('Are you sure you want to activate this payment? This will grant the user immediate access.')) return;
@@ -40,7 +54,7 @@ export default function AdminRevenuePage() {
         setActivatingId(id);
         try {
             await activatePayment(id);
-            loadPayments(); // Refresh list
+            loadData(); // Refresh all data
         } catch (error) {
             console.error('Failed to activate:', error);
             alert('Failed to activate payment. See console for details.');
@@ -109,6 +123,28 @@ export default function AdminRevenuePage() {
                 </div>
             </div>
 
+            {/* Revenue Chart */}
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+                <div className="flex items-center justify-between mb-4 px-2">
+                    <div className="flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-violet-600" />
+                        <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight">Revenue <span className="premium-gradient">Visualization</span></h2>
+                    </div>
+                    <div className="flex bg-slate-100 p-1 rounded-xl">
+                        {[7, 30, 90].map(d => (
+                            <button
+                                key={d}
+                                onClick={() => setChartDays(d)}
+                                className={`px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${chartDays === d ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                            >
+                                {d}D
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <RevenueChart data={chartData} />
+            </div>
+
             {/* Search */}
             <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -168,17 +204,28 @@ export default function AdminRevenuePage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            {payment.status === 'PENDING' ? (
-                                                <button
-                                                    onClick={() => handleActivate(payment.id)}
-                                                    disabled={activatingId === payment.id}
-                                                    className="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-md shadow-violet-600/10 active:scale-95 disabled:opacity-50"
-                                                >
-                                                    {activatingId === payment.id ? 'Processing...' : 'Verify & Activate'}
-                                                </button>
-                                            ) : (
-                                                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Verified</span>
-                                            )}
+                                            <div className="flex items-center justify-end gap-3">
+                                                {payment.screenshot && (
+                                                    <button
+                                                        onClick={() => setPreviewImage(payment.screenshot)}
+                                                        className="p-2 bg-slate-100 text-slate-500 hover:text-violet-600 rounded-lg transition-all active:scale-95"
+                                                        title="View Proof"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                                {payment.status === 'PENDING' ? (
+                                                    <button
+                                                        onClick={() => handleActivate(payment.id)}
+                                                        disabled={activatingId === payment.id}
+                                                        className="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-md shadow-violet-600/10 active:scale-95 disabled:opacity-50"
+                                                    >
+                                                        {activatingId === payment.id ? 'Processing...' : 'Verify & Activate'}
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Verified</span>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -187,6 +234,46 @@ export default function AdminRevenuePage() {
                     </div>
                 )}
             </div>
+
+            {/* Image Preview Modal */}
+            {previewImage && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="relative max-w-4xl w-full bg-white rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="absolute top-6 right-6 z-10">
+                            <button
+                                onClick={() => setPreviewImage(null)}
+                                className="p-3 bg-white/80 backdrop-blur-md text-slate-900 rounded-full hover:bg-white transition-all shadow-xl active:scale-95"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="p-4 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+                            <div className="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center">
+                                <ImageIcon className="text-white w-5 h-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Payment Verification</h3>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Visual Evidence</p>
+                            </div>
+                        </div>
+                        <div className="bg-slate-200 aspect-video md:aspect-auto max-h-[70vh] flex items-center justify-center overflow-auto p-4">
+                            <img
+                                src={previewImage}
+                                alt="Payment Proof"
+                                className="max-w-full h-auto rounded-xl shadow-lg border border-white/20"
+                            />
+                        </div>
+                        <div className="p-8 bg-white text-center">
+                            <button
+                                onClick={() => setPreviewImage(null)}
+                                className="px-12 py-4 bg-slate-950 text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-800 transition-all active:scale-[0.98]"
+                            >
+                                Close Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

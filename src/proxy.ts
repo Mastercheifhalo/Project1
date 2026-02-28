@@ -7,9 +7,10 @@ const { auth } = NextAuth(authConfig);
 export default auth((req) => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth;
-    const userRole = (req.auth?.user as any)?.role;
+    const userRole = req.auth?.user?.role;
+    const userStatus = req.auth?.user?.status;
 
-    console.log(`[Proxy] Path: ${nextUrl.pathname} | LoggedIn: ${isLoggedIn} | Role: ${userRole}`);
+    console.log(`[Proxy] Path: ${nextUrl.pathname} | LoggedIn: ${isLoggedIn} | Role: ${userRole} | Status: ${userStatus}`);
 
     const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
     const isPublicRoute = ["/", "/login", "/register", "/api/register"].includes(nextUrl.pathname);
@@ -31,6 +32,13 @@ export default auth((req) => {
     if (!isLoggedIn) {
         console.log(`[Proxy] Redirecting unauthenticated user to /login`);
         return NextResponse.redirect(new URL("/login", nextUrl));
+    }
+
+    // Zero-Trust: Block suspended users from everything EXCEPT public routes (handled above)
+    if (userStatus === "SUSPENDED") {
+        console.log(`[Proxy] Blocking suspended user: ${req.auth?.user?.email}`);
+        const response = NextResponse.redirect(new URL("/login?error=suspended", nextUrl));
+        return response;
     }
 
     // Admin protection

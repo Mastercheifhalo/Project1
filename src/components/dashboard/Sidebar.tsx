@@ -27,12 +27,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
     const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = React.useState(false);
     const { data: session } = useSession();
-    const isAdmin = (session?.user as any)?.role === 'ADMIN';
-
+    const isAdmin = session?.user?.role === 'ADMIN';
     const navLinks = [
         { name: 'Overview', href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
         { name: 'My Courses', href: '/dashboard/my-courses', icon: <BookOpen className="w-5 h-5" /> },
         { name: 'Billing', href: '/dashboard/billing', icon: <CreditCard className="w-5 h-5" /> },
+        { name: 'Revenue', href: '/admin/revenue', icon: <ShieldCheck className="w-5 h-5" />, adminOnly: true },
         { name: 'Settings', href: '/dashboard/settings', icon: <Settings className="w-5 h-5" /> },
     ];
 
@@ -83,6 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
             {/* Nav Links */}
             <nav className="flex-1 p-4 space-y-2">
                 {navLinks.map((link) => {
+                    if (link.adminOnly && !isAdmin) return null;
                     const isActive = pathname === link.href;
                     return (
                         <Link

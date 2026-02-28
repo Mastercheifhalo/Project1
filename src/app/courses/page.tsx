@@ -18,6 +18,8 @@ type Course = {
     totalDuration: number;
     hasFreeLesson: boolean;
     enrollmentCount: number;
+    isEnrolled: boolean;
+    progress: number | null;
 };
 
 const LEVEL_ORDER: Record<string, number> = {
@@ -156,18 +158,34 @@ export default function CoursesPage() {
                                     <h3 className="text-xl font-black mb-6 text-slate-900 leading-tight group-hover:text-violet-600 transition-colors uppercase tracking-tight">{course.title}</h3>
 
                                     <div className="mt-auto space-y-6">
-                                        <div className="flex items-center gap-6 text-sm text-slate-500 font-bold">
-                                            {course.totalDuration > 0 && (
+                                            <div className="flex items-center gap-6 text-sm text-slate-500 font-bold">
+                                                {course.totalDuration > 0 && (
+                                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg">
+                                                        <Clock className="w-4 h-4" />
+                                                        <span>{formatDuration(course.totalDuration)}</span>
+                                                    </div>
+                                                )}
                                                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg">
-                                                    <Clock className="w-4 h-4" />
-                                                    <span>{formatDuration(course.totalDuration)}</span>
+                                                    <BookOpen className="w-4 h-4" />
+                                                    <span>{course.lessonCount} lessons</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Progress Bar for Enrolled Users */}
+                                            {course.isEnrolled && course.progress !== null && (
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Your Progress</span>
+                                                        <span className="text-[10px] font-black text-violet-600">{course.progress}%</span>
+                                                    </div>
+                                                    <div className="w-full bg-slate-50 h-1.5 rounded-full overflow-hidden">
+                                                        <div
+                                                            className="h-full bg-violet-600 transition-all duration-1000"
+                                                            style={{ width: `${course.progress}%` }}
+                                                        />
+                                                    </div>
                                                 </div>
                                             )}
-                                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg">
-                                                <BookOpen className="w-4 h-4" />
-                                                <span>{course.lessonCount} lessons</span>
-                                            </div>
-                                        </div>
 
                                         <div className="flex items-center justify-between pt-6 border-t border-slate-50">
                                             <div>

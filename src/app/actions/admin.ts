@@ -3,16 +3,34 @@
 import prisma from '@/lib/prisma';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
+import { generateInvoice } from './invoices';
 
 /**
  * Ensures the current user is an specialized ADMIN.
  */
 async function requireAdmin() {
     const session = await auth();
-    if ((session?.user as any)?.role !== 'ADMIN') {
+    if (session?.user?.role !== 'ADMIN') {
         throw new Error('Unauthorized. Admin access required.');
     }
-    return (session?.user as any).id;
+    return session.user.id;
+}
+
+/**
+ * Internal helper to log administrative actions.
+ */
+async function logAudit(adminId: string, action: string, details?: any) {
+    try {
+        await prisma.auditLog.create({
+            data: {
+                adminId,
+                action,
+                details: details ? JSON.stringify(details) : null,
+            },
+        });
+    } catch (error) {
+        console.error('Failed to log audit:', error);
+    }
 }
 
 // ─── Utility Helpers ─────────────────────────────────────────────────────────
@@ -135,7 +153,74 @@ export async function getAdminRevenue() {
         coin: p.coin,
         plan: p.plan || (p.course ? 'One-Time' : 'Subscription'),
         status: p.status,
+        screenshot: p.screenshot,
         date: new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(p.createdAt),
+    }));
+}
+
+export async function getRevenueChartData(days: number = 30) {
+    await requireAdmin();
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const payments = await prisma.payment.findMany({
+        where: {
+            status: 'CONFIRMED',
+            createdAt: { gte: startDate },
+        },
+        select: {
+            amount: true,
+            createdAt: true,
+        },
+        orderBy: { createdAt: 'asc' },
+    });
+
+    // Group by day
+    const chartData: Record<string, number> = {};
+
+    // Fill in all days even if 0 revenue
+    for (let i = 0; i < days; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        chartData[label] = 0;
+    }
+
+    payments.forEach(p => {
+        const label = p.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        if (chartData[label] !== undefined) {
+            chartData[label] += p.amount;
+        }
+    });
+
+    return Object.entries(chartData)
+        .map(([date, revenue]) => ({ date, revenue }))
+        .reverse(); // Ensure chronological order
+}
+
+export async function getAuditLogs() {
+    await requireAdmin();
+    const logs = await prisma.auditLog.findMany({
+        include: {
+            admin: { select: { name: true, email: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 100, // Limit for performance
+    });
+
+    return logs.map((l: any) => ({
+        id: l.id,
+        adminName: l.admin.name || 'Admin',
+        adminEmail: l.admin.email,
+        action: l.action,
+        details: l.details,
+        date: new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(l.createdAt),
     }));
 }
 
@@ -168,6 +253,10 @@ export async function getAdminCourses() {
 
 export async function toggleCoursePublished(courseId: string, published: boolean) {
     await requireAdmin();
+    // Validate existence first
+    const course = await prisma.course.findUnique({ where: { id: courseId } });
+    if (!course) throw new Error('Course not found');
+
     await prisma.course.update({
         where: { id: courseId },
         data: { published },
@@ -202,6 +291,8 @@ export async function activatePayment(paymentId: string) {
     });
 
     if (!payment) throw new Error('Payment not found');
+    const adminId = await requireAdmin(); // Get ID for audit
+
     if (payment.status === 'CONFIRMED') return { success: true, message: 'Already confirmed' };
 
     const { userId, plan, courseId } = payment;
@@ -259,8 +350,23 @@ export async function activatePayment(paymentId: string) {
         });
     }
 
+    // 3. Generate Invoice
+    try {
+        await generateInvoice(paymentId);
+    } catch {
+        // Invoice generation is non-critical — payment is already confirmed
+    }
+
     revalidatePath('/admin/revenue');
     revalidatePath('/dashboard');
+    revalidatePath('/dashboard/billing');
+
+    await logAudit(adminId, 'PAYMENT_CONFIRMED', {
+        paymentId,
+        userId: payment.userId,
+        plan: payment.plan
+    });
+
     return { success: true };
 }
 
@@ -281,6 +387,10 @@ export async function createCourse(data: { title: string; slug: string; descript
 
 export async function updateCourse(id: string, data: any) {
     await requireAdmin();
+    // Validate existence
+    const exists = await prisma.course.findUnique({ where: { id } });
+    if (!exists) throw new Error('Course not found');
+
     const course = await prisma.course.update({
         where: { id },
         data,
@@ -292,15 +402,24 @@ export async function updateCourse(id: string, data: any) {
 }
 
 export async function deleteCourse(id: string) {
-    await requireAdmin();
+    const adminId = await requireAdmin();
+    const exists = await prisma.course.findUnique({ where: { id } });
+    if (!exists) throw new Error('Course not found');
+
     await prisma.course.delete({ where: { id } });
     revalidatePath('/admin/courses');
     revalidatePath('/courses');
+
+    await logAudit(adminId, 'COURSE_DELETED', { courseId: id, title: exists.title });
+
     return { success: true };
 }
 
 export async function createLesson(courseId: string, data: { title: string; content: string; videoUrl: string; order: number; isFree: boolean }) {
     await requireAdmin();
+    const course = await prisma.course.findUnique({ where: { id: courseId } });
+    if (!course) throw new Error('Course not found');
+
     const lesson = await prisma.lesson.create({
         data: {
             ...data,
@@ -314,6 +433,9 @@ export async function createLesson(courseId: string, data: { title: string; cont
 
 export async function updateLesson(id: string, data: any) {
     await requireAdmin();
+    const exists = await prisma.lesson.findUnique({ where: { id } });
+    if (!exists) throw new Error('Lesson not found');
+
     const lesson = await prisma.lesson.update({
         where: { id },
         data,
@@ -324,6 +446,9 @@ export async function updateLesson(id: string, data: any) {
 
 export async function deleteLesson(id: string) {
     await requireAdmin();
+    const exists = await prisma.lesson.findUnique({ where: { id } });
+    if (!exists) throw new Error('Lesson not found');
+
     const lesson = await prisma.lesson.delete({ where: { id } });
     revalidatePath(`/admin/courses/${lesson.courseId}`);
     return { success: true };
@@ -408,42 +533,54 @@ export async function grantUserSubscription(userId: string, plan: string, durati
 }
 
 export async function grantCourseAccess(userId: string, courseId: string) {
-    await requireAdmin();
+    const adminId = await requireAdmin();
     const enrollment = await prisma.enrollment.upsert({
         where: { userId_courseId: { userId, courseId } },
         update: { status: 'ACTIVE' },
         create: { userId, courseId, status: 'ACTIVE' },
     });
     revalidatePath('/admin/users');
+
+    await logAudit(adminId, 'COURSE_ACCESS_GRANTED', { userId, courseId });
+
     return { success: true, enrollment };
 }
 
 export async function revokeSubscription(userId: string) {
-    await requireAdmin();
+    const adminId = await requireAdmin();
     await prisma.subscription.updateMany({
         where: { userId, status: 'ACTIVE' },
         data: { status: 'CANCELLED' },
     });
     revalidatePath('/admin/users');
+
+    await logAudit(adminId, 'SUBSCRIPTION_REVOKED', { userId });
+
     return { success: true };
 }
 
 export async function revokeCourseAccess(userId: string, courseId: string) {
-    await requireAdmin();
+    const adminId = await requireAdmin();
     await prisma.enrollment.update({
         where: { userId_courseId: { userId, courseId } },
         data: { status: 'CANCELLED' },
     });
     revalidatePath('/admin/users');
+
+    await logAudit(adminId, 'COURSE_ACCESS_REVOKED', { userId, courseId });
+
     return { success: true };
 }
 
 export async function updateUserStatus(userId: string, status: string) {
-    await requireAdmin();
+    const adminId = await requireAdmin();
     await prisma.user.update({
         where: { id: userId },
         data: { status },
     });
     revalidatePath('/admin/users');
+
+    await logAudit(adminId, 'USER_STATUS_UPDATED', { userId, status });
+
     return { success: true };
 }

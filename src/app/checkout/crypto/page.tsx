@@ -16,7 +16,10 @@ import {
     Zap,
     ChevronDown,
     ChevronUp,
-    Info
+    Info,
+    Image as ImageIcon,
+    X,
+    UploadCloud
 } from 'lucide-react';
 import Link from 'next/link';
 import ScrollReveal from '@/components/common/ScrollReveal';
@@ -47,6 +50,9 @@ function CheckoutContent() {
     const [isFetchingPrice, setIsFetchingPrice] = useState(true);
     const [walletAddresses, setWalletAddresses] = useState<Record<string, string>>({});
     const [walletError, setWalletError] = useState(false);
+    const [screenshot, setScreenshot] = useState<string | null>(null);
+    const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         const fetchPrices = async () => {
@@ -101,6 +107,35 @@ function CheckoutContent() {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validation
+        if (!file.type.startsWith('image/')) {
+            alert("Please upload an image file (PNG, JPG, etc)");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            alert("File is too large. Max size is 5MB.");
+            return;
+        }
+
+        setScreenshotFile(file);
+
+        // Convert to base64 for preview and sending
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setScreenshot(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const removeScreenshot = () => {
+        setScreenshot(null);
+        setScreenshotFile(null);
+    };
+
     const handleConfirm = async () => {
         setIsConfirming(true);
         try {
@@ -112,7 +147,8 @@ function CheckoutContent() {
                     plan: type === 'course' ? 'OneTime' : plan,
                     price,
                     coin: selectedCoin,
-                    courseId
+                    courseId,
+                    screenshot // Base64 string
                 }),
             });
 
@@ -273,7 +309,7 @@ function CheckoutContent() {
 
                                 {/* Switchable Tabs */}
                                 <div className="px-6 md:px-0">
-                                    <div className="bg-slate-100 p-1 md:p-1.5 rounded-2xl flex relative shadow-inner w-full md:w-fit transition-all overflow-hidden h-[54px] md:h-auto">
+                                    <div className="bg-slate-100 p-1 md:p-1.5 rounded-2xl flex relative shadow-inner w-full md:w-fit overflow-hidden">
                                         <div
                                             className="absolute top-1 bottom-1 bg-white rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-0"
                                             style={{
@@ -286,7 +322,7 @@ function CheckoutContent() {
                                             <button
                                                 key={coin}
                                                 onClick={() => setSelectedCoin(coin)}
-                                                className={`relative z-10 flex-1 md:flex-none md:px-8 py-3 rounded-xl text-[13px] md:text-xs font-black tracking-widest transition-colors duration-300 flex items-center justify-center ${selectedCoin === coin
+                                                className={`relative z-10 flex-1 md:flex-none md:px-8 py-3.5 md:py-3 rounded-xl text-sm md:text-xs font-black tracking-widest transition-colors duration-300 flex items-center justify-center min-w-0 ${selectedCoin === coin
                                                     ? 'text-violet-600'
                                                     : 'text-slate-400 hover:text-slate-600'
                                                     }`}
@@ -436,6 +472,57 @@ function CheckoutContent() {
                                                 <p className="text-[13px] text-slate-500 font-medium leading-relaxed">
                                                     All crypto sales are final. No refunds once sent.
                                                 </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* SCREENSHOT UPLOAD SECTION */}
+                                <div className="px-1 mb-8">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <div className="w-1 h-3 bg-violet-600 rounded-full" />
+                                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Submit Proof</h3>
+                                    </div>
+
+                                    {!screenshot ? (
+                                        <div className="relative group">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                            />
+                                            <div className="border-2 border-dashed border-slate-200 rounded-3xl p-8 flex flex-col items-center justify-center gap-3 bg-slate-50/50 group-hover:bg-violet-50 group-hover:border-violet-200 transition-all">
+                                                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                                                    <UploadCloud className="w-6 h-6 text-slate-400 group-hover:text-violet-600" />
+                                                </div>
+                                                <div className="text-center">
+                                                    <p className="text-sm font-bold text-slate-900">Upload payment screenshot</p>
+                                                    <p className="text-[10px] font-medium text-slate-400 mt-1">PNG, JPG or JPEG (Max. 5MB)</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="relative rounded-3xl overflow-hidden border border-slate-200 group">
+                                            <img
+                                                src={screenshot}
+                                                alt="Payment Preview"
+                                                className="w-full h-48 object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <button
+                                                    onClick={removeScreenshot}
+                                                    className="bg-red-500 text-white p-3 rounded-2xl hover:bg-red-600 transition-colors flex items-center gap-2 font-bold text-xs shadow-xl"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                    Remove Proof
+                                                </button>
+                                            </div>
+                                            <div className="absolute top-4 left-4">
+                                                <div className="px-3 py-1.5 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5">
+                                                    <CheckCircle2 className="w-3 h-3" />
+                                                    Image Ready
+                                                </div>
                                             </div>
                                         </div>
                                     )}

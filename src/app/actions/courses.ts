@@ -35,7 +35,6 @@ export async function canAccessLesson(lessonId: string): Promise<'free' | 'subsc
     });
 
     if (!user || user.status === 'SUSPENDED') {
-        console.log(`[Access Control] Denying access to suspended or missing user: ${userId}`);
         return 'locked';
     }
 
@@ -123,6 +122,9 @@ export async function getCourseBySlug(slug: string) {
 // ─── Course Catalog ───────────────────────────────────────────────────────────
 
 export async function getAllPublishedCourses() {
+    const session = await auth();
+    const userId = session?.user?.id;
+
     const courses = await prisma.course.findMany({
         where: { published: true },
         include: {
@@ -136,20 +138,47 @@ export async function getAllPublishedCourses() {
         orderBy: { createdAt: 'desc' },
     });
 
-    return courses.map(course => ({
-        id: course.id,
-        title: course.title,
-        slug: course.slug,
-        description: course.description,
-        thumbnail: course.thumbnail,
-        category: course.category,
-        level: course.level,
-        price: course.price,
-        lessonCount: course.lessons.length,
-        hasFreeLesson: (course as any).lessons.some((l: any) => l.isFree),
-        totalDuration: (course as any).lessons.reduce((sum: number, l: any) => sum + (l.duration || 0), 0),
-        enrollmentCount: (course as any)._count.enrollments,
-    }));
+    let userProgress: any[] = [];
+    let enrollments: any[] = [];
+
+    if (userId) {
+        [userProgress, enrollments] = await Promise.all([
+            prisma.lessonProgress.findMany({
+                where: { userId },
+                select: { lessonId: true, completed: true }
+            }),
+            prisma.enrollment.findMany({
+                where: { userId },
+                select: { courseId: true }
+            })
+        ]);
+    }
+
+    const progressMap = new Set(userProgress.filter(p => p.completed).map(p => p.lessonId));
+    const enrollmentSet = new Set(enrollments.map(e => e.courseId));
+
+    return courses.map(course => {
+        const lessonCount = course.lessons.length;
+        const completedCount = course.lessons.filter(l => progressMap.has(l.id)).length;
+        const progress = lessonCount > 0 ? Math.round((completedCount / lessonCount) * 100) : 0;
+
+        return {
+            id: course.id,
+            title: course.title,
+            slug: course.slug,
+            description: course.description,
+            thumbnail: course.thumbnail,
+            category: course.category,
+            level: course.level,
+            price: course.price,
+            lessonCount,
+            hasFreeLesson: (course as any).lessons.some((l: any) => l.isFree),
+            totalDuration: (course as any).lessons.reduce((sum: number, l: any) => sum + (l.duration || 0), 0),
+            enrollmentCount: (course as any)._count.enrollments,
+            isEnrolled: enrollmentSet.has(course.id),
+            progress: enrollmentSet.has(course.id) ? progress : null,
+        };
+    });
 }
 
 // ─── Lesson Detail ────────────────────────────────────────────────────────────

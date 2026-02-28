@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { getLessonById, canAccessLesson } from '@/app/actions/courses';
+import { getLessonProgress, saveProgress, completeLesson } from '@/app/actions/progress';
+import { useRef } from 'react';
 
 type AccessLevel = 'free' | 'subscribed' | 'purchased' | 'locked';
 
@@ -34,17 +36,37 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string;
     const [lesson, setLesson] = useState<LessonData | null>(null);
     const [access, setAccess] = useState<AccessLevel | null>(null);
     const [loading, setLoading] = useState(true);
+    const [initialTime, setInitialTime] = useState(0);
+    const lastSavedTimeRef = useRef(0);
 
     useEffect(() => {
+        setLoading(true);
         Promise.all([
             getLessonById(lessonId),
             canAccessLesson(lessonId),
-        ]).then(([lessonData, accessLevel]) => {
+            getLessonProgress(lessonId)
+        ]).then(([lessonData, accessLevel, progressData]) => {
             setLesson(lessonData);
             setAccess(accessLevel);
+            if (progressData) {
+                setInitialTime(progressData.watchedSecs);
+                lastSavedTimeRef.current = progressData.watchedSecs;
+            }
             setLoading(false);
         }).catch(() => setLoading(false));
     }, [lessonId]);
+
+    const handleProgressUpdate = (currentTime: number, duration: number) => {
+        // Save every 10 seconds of playback or when significant jump happens
+        if (Math.abs(currentTime - lastSavedTimeRef.current) > 10) {
+            lastSavedTimeRef.current = currentTime;
+            saveProgress(lessonId, Math.floor(currentTime));
+        }
+    };
+
+    const handleLessonComplete = () => {
+        completeLesson(lessonId);
+    };
 
     if (loading) {
         return (
@@ -127,6 +149,9 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string;
                     /* ── VIDEO PLAYER ────────────────────────────── */
                     <MasterCoursePlayer
                         videoUrl={lesson.videoUrl || fallbackVideo}
+                        initialTime={initialTime}
+                        onTimeUpdate={handleProgressUpdate}
+                        onComplete={handleLessonComplete}
                     />
                 )}
 

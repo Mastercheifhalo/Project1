@@ -1,15 +1,14 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import path from "path";
 import bcrypt from 'bcryptjs';
 
-const dbPath = path.join(process.cwd(), "prisma", "dev.db");
-const adapter = new PrismaBetterSqlite3({
-    url: `file:${dbPath}`
-});
-const prisma = new PrismaClient({ adapter });
+// Using standard constructor - Prisma 7 should pick up the connection from the environment
+// in a standard seeding flow (npx prisma db seed).
+const prisma = new PrismaClient();
 
 async function main() {
+    console.log("Seeding Neon database...");
+
     // 1. Create Admin
     const adminEmail = 'admin@coursepro.com';
     const adminPassword = 'AdminPassword123!';
@@ -45,13 +44,13 @@ async function main() {
     });
 
     console.log('Seed successful:');
-    console.log('Admin:', adminEmail, '/ AdminPassword123!');
-    console.log('Student:', studentEmail, '/ StudentPassword123!');
+    console.log('Admin:', adminEmail);
+    console.log('Student:', studentEmail);
 }
 
 main()
     .catch((e) => {
-        console.error(e);
+        console.error("Seeding error:", e);
         process.exit(1);
     })
     .finally(async () => {

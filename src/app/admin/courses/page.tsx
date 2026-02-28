@@ -63,7 +63,7 @@ export default function CoursesAdminPage() {
                 category: form.category,
                 level: form.level,
                 price: parseFloat(form.price) || 0,
-                slug: generateSlug(form.title.trim())
+                slug: await generateSlug(form.title.trim())
             });
             if (result && result.success) {
                 setShowCreateModal(false);

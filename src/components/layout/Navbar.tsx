@@ -110,7 +110,7 @@ const Navbar = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className={`md:hidden fixed inset-0 ${isScrolled ? 'top-[64px]' : 'top-[80px]'} bg-white/95 backdrop-blur-2xl z-[1001] p-6 flex flex-col items-center justify-start gap-8 shadow-2xl overflow-y-auto`}
+            className={`md:hidden fixed inset-x-0 bottom-0 top-full bg-white/95 backdrop-blur-2xl z-[1001] p-6 flex flex-col items-center justify-start gap-8 shadow-2xl overflow-y-auto`}
           >
             <div className="w-full max-w-sm flex flex-col gap-4 mt-8">
               {navLinks.map((link) => (

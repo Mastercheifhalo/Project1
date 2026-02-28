@@ -22,6 +22,7 @@ type CourseData = {
     lessons: string;
     duration: string;
     status: string;
+    resumeLessonId: string | null;
 };
 
 export default function MyCoursesPage() {
@@ -137,7 +138,9 @@ export default function MyCoursesPage() {
                     {filteredCourses.map((course) => (
                         <Link
                             key={course.id}
-                            href={`/courses/${course.slug}`}
+                            href={course.resumeLessonId
+                                ? `/courses/${course.slug}/lessons/${course.resumeLessonId}`
+                                : `/courses/${course.slug}`}
                             className="bg-white rounded-2xl md:rounded-[2.5rem] border border-slate-100 overflow-hidden flex flex-col hover:border-violet-200 hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 group"
                         >
                             {/* Thumbnail */}

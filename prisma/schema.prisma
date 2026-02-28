@@ -3,7 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -24,6 +25,8 @@ model User {
   payments       Payment[]
   sessions       Session[]
   subscriptions  Subscription[]
+  invoices       Invoice[]
+  auditLogs      AuditLog[]
 }
 
 model Account {
@@ -143,10 +146,34 @@ model Payment {
   plan      String
   status    String   @default("PENDING")
   courseId  String?
+  screenshot String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   course    Course?  @relation(fields: [courseId], references: [id])
+  invoice   Invoice?
+}
+
+model Invoice {
+  id            String   @id @default(cuid())
+  invoiceNumber String   @unique
+  userId        String
+  paymentId     String   @unique
+  amount        Float
+  status        String   @default("PAID")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payment       Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  action    String   // e.g. "PAYMENT_CONFIRMED", "USER_SUSPENDED"
+  details   String?  // JSON string with context
+  createdAt DateTime @default(now())
+  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
 }
 
 enum UserRole {

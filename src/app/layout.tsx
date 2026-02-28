@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://coursepro.dev"),
   title: "CoursePro — Master Modern Development",
   description: "Practical, expert-led courses for builders. Learn React, Next.js, TypeScript and more. Subscribe for full access or buy individual courses with lifetime ownership.",
   keywords: ["online courses", "web development", "React", "Next.js", "TypeScript", "programming", "coding"],

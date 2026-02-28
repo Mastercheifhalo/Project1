@@ -103,6 +103,10 @@ export async function getMyCoursesData() {
         ).length;
         const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
+        // Find resume lesson: first lesson not yet completed
+        const resumeLesson = enrollment.course.lessons.find(l => !progressMap.get(l.id)?.completed)
+            ?? enrollment.course.lessons[0];
+
         // Calculate remaining duration
         const totalDurationSecs = enrollment.course.lessons.reduce(
             (sum, l) => sum + (l.duration || 0), 0
@@ -131,6 +135,7 @@ export async function getMyCoursesData() {
             lessons: `${completedLessons}/${totalLessons}`,
             duration,
             status: enrollment.status,
+            resumeLessonId: resumeLesson?.id ?? null,
         };
     });
 }
