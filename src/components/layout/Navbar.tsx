@@ -29,7 +29,7 @@ const Navbar = () => {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-500 ${isScrolled
+        className={`fixed top-0 left-0 right-0 z-[1050] transition-all duration-500 ${isScrolled
           ? 'bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-sm py-3'
           : 'bg-transparent py-5'
           }`}
@@ -107,10 +107,10 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className={`md:hidden fixed inset-x-0 bottom-0 top-full bg-white/95 backdrop-blur-2xl z-[1001] p-6 flex flex-col items-center justify-start gap-8 shadow-2xl overflow-y-auto`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className={`md:hidden fixed inset-0 bg-white/98 backdrop-blur-2xl z-[1040] p-6 pt-24 flex flex-col items-center justify-start gap-8 shadow-2xl overflow-y-auto`}
           >
             <div className="w-full max-w-sm flex flex-col gap-4 mt-8">
               {navLinks.map((link) => (
