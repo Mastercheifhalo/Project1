@@ -252,7 +252,7 @@ export async function getAdminCourses() {
 }
 
 export async function toggleCoursePublished(courseId: string, published: boolean) {
-    await requireAdmin();
+    const adminId = await requireAdmin();
     // Validate existence first
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) throw new Error('Course not found');
@@ -263,6 +263,12 @@ export async function toggleCoursePublished(courseId: string, published: boolean
     });
     revalidatePath('/admin/courses');
     revalidatePath('/courses');
+
+    await logAudit(adminId, published ? 'COURSE_PUBLISHED' : 'COURSE_UNPUBLISHED', {
+        courseId,
+        title: course.title,
+    });
+
     return { success: true };
 }
 
@@ -457,6 +463,25 @@ export async function deleteLesson(id: string) {
 export async function reorderLessons(lessonIds: string[]) {
     await requireAdmin();
 
+    if (lessonIds.length === 0) return { success: true };
+
+    // Ownership validation — all IDs must belong to the same course
+    const lessons = await prisma.lesson.findMany({
+        where: { id: { in: lessonIds } },
+        select: { id: true, courseId: true },
+    });
+
+    if (lessons.length !== lessonIds.length) {
+        throw new Error('One or more lesson IDs are invalid.');
+    }
+
+    const courseIds = new Set(lessons.map(l => l.courseId));
+    if (courseIds.size !== 1) {
+        throw new Error('All lessons must belong to the same course.');
+    }
+
+    const courseId = [...courseIds][0];
+
     // Serial update for order
     for (let i = 0; i < lessonIds.length; i++) {
         await prisma.lesson.update({
@@ -465,11 +490,7 @@ export async function reorderLessons(lessonIds: string[]) {
         });
     }
 
-    // Revalidate first lesson to be safe if courseId is available
-    if (lessonIds.length > 0) {
-        const first = await prisma.lesson.findUnique({ where: { id: lessonIds[0] }, select: { courseId: true } });
-        if (first) revalidatePath(`/admin/courses/${first.courseId}`);
-    }
+    revalidatePath(`/admin/courses/${courseId}`);
 
     return { success: true };
 }
@@ -477,7 +498,7 @@ export async function reorderLessons(lessonIds: string[]) {
 // ─── User Management Actions ──────────────────────────────────────────────────
 
 export async function grantSubscription(userId: string, plan: string, durationDays: number) {
-    await requireAdmin();
+    const adminId = await requireAdmin();
 
     const now = new Date();
     const endDate = new Date();
@@ -501,12 +522,15 @@ export async function grantSubscription(userId: string, plan: string, durationDa
     });
 
     revalidatePath('/admin/users');
+
+    await logAudit(adminId, 'SUBSCRIPTION_GRANTED', { userId, plan, durationDays });
+
     return { success: true, subscription };
 }
 
 // Fixed version of grantSubscription that uses findFirst since id isn't userId
 export async function grantUserSubscription(userId: string, plan: string, durationDays: number) {
-    await requireAdmin();
+    const adminId = await requireAdmin();
 
     const now = new Date();
     const endDate = new Date();
@@ -529,6 +553,9 @@ export async function grantUserSubscription(userId: string, plan: string, durati
     }
 
     revalidatePath('/admin/users');
+
+    await logAudit(adminId, 'SUBSCRIPTION_GRANTED', { userId, plan, durationDays });
+
     return { success: true, subscription };
 }
 
