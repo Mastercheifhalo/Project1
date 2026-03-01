@@ -2,85 +2,102 @@ import PricingCard from '@/components/pricing/PricingCard';
 import TrialVideo from '@/components/video/TrialVideo';
 import Testimonials from '@/components/home/Testimonials';
 import ScrollReveal from '@/components/common/ScrollReveal';
-import { ArrowRight, Zap, ShieldCheck, PlayCircle, Infinity } from 'lucide-react';
+import { ArrowRight, Zap, ShieldCheck, PlayCircle, Infinity, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
   const pricingTiers = [
     {
-      tier: "Monthly",
-      price: "29",
-      interval: "month",
-      features: ["Access to all courses", "Community support", "Weekly live Q&A", "Downloadable resources"],
+      tier: 'Monthly',
+      price: '29',
+      interval: 'month',
+      features: ['Access to all courses', 'Community support', 'Weekly live Q&A', 'Downloadable resources'],
     },
     {
-      tier: "Quarterly",
-      price: "49",
-      interval: "3 months",
-      features: ["All Monthly features", "Exclusive workshop access", "1-on-1 mentor session", "Priority support"],
-      isPopular: true
+      tier: 'Quarterly',
+      price: '49',
+      interval: '3 months',
+      features: ['All Monthly features', 'Exclusive workshop access', '1-on-1 mentor session', 'Priority support'],
+      isPopular: true,
     },
     {
-      tier: "Annual",
-      price: "99",
-      interval: "year",
-      features: ["All Quarterly features", "Access to premium masterclass", "Downloadable resources", "Lifetime course updates"],
-    }
+      tier: 'Annual',
+      price: '99',
+      interval: 'year',
+      features: ['All Quarterly features', 'Access to premium masterclass', 'Downloadable resources', 'Lifetime course updates'],
+    },
   ];
 
   const trialVideos = [
-    { title: "Introduction to React", thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=2940&auto=format&fit=crop", isUnlocked: true },
-    { title: "Tailwind CSS Layouts", thumbnail: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=2831&auto=format&fit=crop", isUnlocked: false },
-    { title: "Next.js 14 Fundamentals", thumbnail: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?q=80&w=2834&auto=format&fit=crop", isUnlocked: false },
+    { title: 'Introduction to React', thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=2940&auto=format&fit=crop', isUnlocked: true },
+    { title: 'Tailwind CSS Layouts', thumbnail: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=2831&auto=format&fit=crop', isUnlocked: false },
+    { title: 'Next.js 14 Fundamentals', thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?q=80&w=2834&auto=format&fit=crop', isUnlocked: false },
   ];
 
   const features = [
     {
       icon: <PlayCircle className="w-7 h-7 text-violet-600" />,
-      title: "Expert-Led Courses",
-      description: "Every course is built by active professionals with real-world experience — not just theory.",
+      title: 'Expert-Led Courses',
+      description: 'Every course is built by active professionals with real-world experience — not just theory.',
+      gradient: 'from-violet-50 to-purple-50',
+      accent: 'bg-violet-100',
     },
     {
-      icon: <Infinity className="w-7 h-7 text-violet-600" />,
-      title: "Lifetime Access",
-      description: "Buy once, keep forever. Your purchased courses never expire, even as content gets updated.",
+      icon: <Infinity className="w-7 h-7 text-sky-600" />,
+      title: 'Lifetime Access',
+      description: 'Buy once, keep forever. Your purchased courses never expire, even as content gets updated.',
+      gradient: 'from-sky-50 to-cyan-50',
+      accent: 'bg-sky-100',
     },
     {
-      icon: <ShieldCheck className="w-7 h-7 text-violet-600" />,
-      title: "Crypto Payments",
-      description: "Pay privately with BTC, USDT, or USDC. No chargebacks, no friction, instant access.",
+      icon: <ShieldCheck className="w-7 h-7 text-emerald-600" />,
+      title: 'Crypto Payments',
+      description: 'Pay privately with BTC, USDT, or USDC. No chargebacks, no friction, instant access.',
+      gradient: 'from-emerald-50 to-teal-50',
+      accent: 'bg-emerald-100',
     },
     {
-      icon: <Zap className="w-7 h-7 text-violet-600" />,
-      title: "Learn at Your Pace",
-      description: "No deadlines, no pressure. Progress through lessons whenever and wherever suits you.",
+      icon: <Zap className="w-7 h-7 text-amber-600" />,
+      title: 'Learn at Your Pace',
+      description: 'No deadlines, no pressure. Progress through lessons whenever and wherever suits you.',
+      gradient: 'from-amber-50 to-orange-50',
+      accent: 'bg-amber-100',
     },
   ];
 
   return (
-    <main className="min-h-screen pb-24">
+    <main className="min-h-screen pb-24 bg-gradient-to-br from-slate-50 via-white to-violet-50/20 overflow-x-hidden">
 
       {/* ── HERO ─────────────────────────────── */}
       <ScrollReveal direction="none">
-        <section className="relative pt-32 md:pt-36 pb-16 md:pb-20 px-4 md:px-6 max-w-7xl mx-auto text-center">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_70%)] opacity-5 pointer-events-none -z-10" />
+        <section className="relative pt-32 md:pt-40 pb-20 md:pb-28 px-4 md:px-6 max-w-7xl mx-auto text-center">
+
+          {/* Animated blob decorations */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+            <div className="absolute top-16 left-1/4 w-72 h-72 bg-violet-200/25 rounded-full blur-3xl animate-blob" />
+            <div className="absolute top-32 right-1/4 w-64 h-64 bg-sky-200/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
+            <div className="absolute bottom-0 left-1/2 w-80 h-80 bg-purple-100/30 rounded-full blur-3xl animate-blob animation-delay-4000" />
+          </div>
+
+          {/* Dot grid pattern */}
+          <div className="absolute inset-0 bg-pattern-dots opacity-[0.35] pointer-events-none -z-10" />
 
           <ScrollReveal direction="up" delay={0.1}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-50 border border-violet-100 rounded-full text-violet-600 text-xs font-black uppercase tracking-widest mb-8">
-              <Zap className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-violet-100 rounded-full text-violet-600 text-xs font-black uppercase tracking-widest mb-8 shadow-sm shadow-violet-100">
+              <Sparkles className="w-3.5 h-3.5" />
               New courses added every month
             </div>
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.2}>
-            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 px-2 leading-[1.1]">
-              Don&apos;t Just Code. <br />
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 px-2 leading-[1.05]">
+              {"Don't Just Code."} <br />
               <span className="premium-gradient uppercase italic">Build The Future.</span>
             </h1>
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.4}>
-            <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 font-medium px-4">
+            <p className="text-lg md:text-xl text-slate-500 max-w-xl mx-auto mb-12 font-medium px-4 leading-relaxed">
               Practical, project-based courses designed by working developers.
               Learn skills that matter — and apply them from day one.
             </p>
@@ -93,7 +110,7 @@ export default function Home() {
               </a>
               <Link
                 href="/courses"
-                className="px-10 py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold rounded-2xl border border-slate-200 transition-all w-full sm:w-auto text-center"
+                className="px-10 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl border border-slate-200 hover:border-slate-300 transition-all w-full sm:w-auto text-center shadow-sm"
               >
                 Browse Courses
               </Link>
@@ -102,14 +119,14 @@ export default function Home() {
         </section>
       </ScrollReveal>
 
-      {/* ── FEATURES / VALUE PROPS ───────────── */}
+      {/* ── FEATURES ─────────────────────────── */}
       <ScrollReveal>
-        <section className="py-16 px-4 md:px-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="py-16 md:py-20 px-4 md:px-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((f, i) => (
               <ScrollReveal key={i} delay={i * 0.1}>
-                <div className="bg-white border border-slate-100 rounded-[2rem] p-8 hover:border-violet-100 hover:shadow-lg transition-all group">
-                  <div className="w-14 h-14 bg-violet-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-violet-100 transition-colors">
+                <div className={`bg-gradient-to-br ${f.gradient} border border-white rounded-[2rem] p-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-500 group`}>
+                  <div className={`w-14 h-14 ${f.accent} rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
                     {f.icon}
                   </div>
                   <h3 className="text-base font-black text-slate-900 mb-2 uppercase tracking-tight">{f.title}</h3>
@@ -123,18 +140,26 @@ export default function Home() {
 
       {/* ── TRIAL VIDEOS ─────────────────────── */}
       <ScrollReveal>
-        <section id="trial" className="py-24 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-32">
+        <section id="trial" className="py-20 md:py-28 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-32">
+          {/* Section header with accent line */}
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight uppercase">High-Quality <span className="text-violet-500">Learning</span></h2>
-            <p className="text-slate-600 max-w-xl mx-auto text-lg leading-relaxed font-medium">
-              Get a taste of what&apos;s inside. The first lesson of every course is completely free — no account required.
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-violet-50 border border-violet-100 rounded-full text-violet-500 text-[10px] font-black uppercase tracking-widest mb-5">
+              <PlayCircle className="w-3 h-3" />
+              Free Previews
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black mb-5 tracking-tight">
+              High-Quality <span className="premium-gradient">Learning</span>
+            </h2>
+            <p className="text-slate-500 max-w-xl mx-auto text-lg leading-relaxed font-medium">
+              {"The first lesson of every course is completely free — no account required."}
             </p>
-            <Link href="/courses" className="inline-flex items-center gap-2 mt-6 text-sm font-black text-violet-600 hover:text-violet-800 transition-colors">
-              Browse all courses <ArrowRight className="w-4 h-4" />
+            <Link href="/courses" className="inline-flex items-center gap-2 mt-6 text-sm font-black text-violet-600 hover:text-violet-800 transition-colors group">
+              Browse all courses
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {trialVideos.map((video, index) => (
               <ScrollReveal key={index} delay={index * 0.1}>
                 <TrialVideo {...video} />
@@ -144,17 +169,28 @@ export default function Home() {
         </section>
       </ScrollReveal>
 
+      {/* ── SECTION DIVIDER ──────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+      </div>
+
       {/* ── PRICING ──────────────────────────── */}
       <ScrollReveal>
-        <section id="pricing" className="py-24 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-32">
+        <section id="pricing" className="py-20 md:py-28 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-32">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight uppercase">Simple, Transparent <span className="text-violet-500">Pricing</span></h2>
-            <p className="text-slate-600 max-w-xl mx-auto text-lg leading-relaxed font-medium">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-600 text-[10px] font-black uppercase tracking-widest mb-5">
+              <ShieldCheck className="w-3 h-3" />
+              Transparent Pricing
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black mb-5 tracking-tight">
+              Simple, Clear <span className="premium-gradient">Plans</span>
+            </h2>
+            <p className="text-slate-500 max-w-xl mx-auto text-lg leading-relaxed font-medium">
               Subscribe for full catalog access, or purchase individual courses for lifetime ownership. Pay with crypto or card.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {pricingTiers.map((tier, index) => (
               <ScrollReveal key={index} delay={index * 0.1}>
                 <PricingCard {...tier} />
@@ -162,9 +198,8 @@ export default function Home() {
             ))}
           </div>
 
-          {/* One-time purchase note */}
           <ScrollReveal direction="up" delay={0.3}>
-            <div className="mt-12 text-center p-8 bg-slate-50 border border-slate-100 rounded-[2rem]">
+            <div className="mt-10 text-center p-6 bg-white/80 backdrop-blur border border-slate-100 rounded-[2rem] shadow-sm">
               <p className="text-slate-500 font-medium text-sm">
                 Prefer to buy one course at a time?{' '}
                 <Link href="/courses" className="text-violet-600 font-black hover:underline">
@@ -178,35 +213,40 @@ export default function Home() {
       </ScrollReveal>
 
       {/* ── TESTIMONIALS ─────────────────────── */}
-      <Testimonials />
+      <div className="px-4 md:px-6">
+        <Testimonials />
+      </div>
 
       {/* ── FINAL CTA ────────────────────────── */}
       <ScrollReveal direction="none">
-        <section className="py-20 md:py-24 max-w-7xl mx-auto px-4 md:px-6 mb-24">
-          <div className="relative bg-slate-900 rounded-[2.5rem] md:rounded-[3rem] p-10 md:p-24 overflow-hidden text-center group">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-violet-600/30 blur-[100px] -mr-48 -mt-48 group-hover:bg-violet-600/40 transition-colors" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-sky-600/20 blur-[100px] -ml-48 -mb-48 group-hover:bg-sky-600/30 transition-colors" />
+        <section className="py-16 md:py-20 max-w-7xl mx-auto px-4 md:px-6 mb-16">
+          <div className="relative bg-slate-900 rounded-[2.5rem] md:rounded-[3rem] p-10 md:p-20 overflow-hidden text-center group">
+            {/* Blob glows */}
+            <div className="absolute top-0 right-0 w-80 h-80 bg-violet-600/25 blur-[80px] -mr-40 -mt-40 group-hover:bg-violet-600/35 transition-colors duration-700" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-sky-600/15 blur-[80px] -ml-40 -mb-40 group-hover:bg-sky-600/25 transition-colors duration-700" />
+            {/* Subtle dot grid on dark bg */}
+            <div className="absolute inset-0 opacity-[0.06] bg-pattern-dots" />
 
             <div className="relative z-10 flex flex-col items-center">
               <ScrollReveal direction="up" delay={0.2}>
-                <h2 className="text-3xl md:text-6xl font-black !text-white mb-8 tracking-tight leading-tight">
+                <h2 className="text-3xl md:text-6xl font-black !text-white mb-6 tracking-tight leading-tight">
                   Ready to level up? <br />
                   <span className="text-violet-400">Start learning today.</span>
                 </h2>
               </ScrollReveal>
               <ScrollReveal direction="up" delay={0.4}>
-                <p className="!text-white/70 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium">
+                <p className="!text-slate-400 text-lg md:text-xl max-w-xl mx-auto mb-10 font-medium leading-relaxed">
                   A growing community of developers building real skills with CoursePro.
                 </p>
               </ScrollReveal>
               <ScrollReveal direction="up" delay={0.6}>
-                <a
+                <Link
                   href="/register"
-                  className="inline-flex items-center justify-center gap-3 px-8 md:px-12 py-5 bg-white text-slate-900 text-lg md:text-xl font-black rounded-2xl hover:bg-slate-100 transition-all hover:scale-105 shadow-2xl shadow-white/10 w-full sm:w-auto"
+                  className="inline-flex items-center justify-center gap-3 px-10 md:px-14 py-5 bg-white text-slate-900 text-lg md:text-xl font-black rounded-2xl hover:bg-slate-100 transition-all hover:scale-105 shadow-2xl shadow-white/10 w-full sm:w-auto"
                 >
                   Create Free Account
                   <ArrowRight className="w-6 h-6" />
-                </a>
+                </Link>
               </ScrollReveal>
             </div>
           </div>
