@@ -20,7 +20,7 @@ const AdminSettingsPage = () => {
             {/* Header ... */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2 uppercase">Platform <span className="premium-gradient">Settings</span></h1>
+                    <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight mb-2 uppercase">Platform <span className="premium-gradient">Settings</span></h1>
                     <p className="text-slate-500 font-bold text-sm tracking-tight">Configure global platform parameters and system integrations.</p>
                 </div>
                 <button className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-2xl shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-95">
@@ -67,19 +67,19 @@ const AdminSettingsPage = () => {
 
                         <div className="space-y-6">
                             {securitySettings.map((item, i) => (
-                                <div key={i} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-50">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400">
+                                <div key={i} className="flex items-center justify-between gap-4 p-4 bg-slate-50/50 rounded-2xl border border-slate-50">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 shrink-0">
                                             <item.icon className="w-5 h-5" />
                                         </div>
-                                        <div>
-                                            <p className="text-sm font-black text-slate-900">{item.label}</p>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{item.desc}</p>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-black text-slate-900 leading-tight">{item.label}</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-tight mt-0.5">{item.desc}</p>
                                         </div>
                                     </div>
                                     <div
                                         onClick={() => toggleSecurity(i)}
-                                        className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-all ${item.checked ? 'bg-slate-900' : 'bg-slate-200'}`}>
+                                        className={`shrink-0 w-12 h-6 rounded-full p-1 cursor-pointer transition-all ${item.checked ? 'bg-slate-900' : 'bg-slate-200'}`}>
                                         <div className={`w-4 h-4 bg-white rounded-full transition-all ${item.checked ? 'translate-x-6' : 'translate-x-0'}`} />
                                     </div>
                                 </div>

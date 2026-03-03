@@ -87,7 +87,7 @@ const AdminSidebar = () => {
                     {navLinks.map((link) => {
                         const isActive = pathname === link.href;
                         return (
-                            <Link key={link.name} href={link.href}>
+                            <Link key={link.name} href={link.href} onClick={() => setIsMobileOpen(false)}>
                                 <motion.div
                                     whileHover={{ x: 4 }}
                                     whileTap={{ scale: 0.98 }}
