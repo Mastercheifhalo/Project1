@@ -39,6 +39,8 @@ export default function CoursesAdminPage() {
     const [form, setForm] = useState({
         title: '', description: '', category: 'Development', level: 'Beginner', price: '0',
     });
+    const [customCategory, setCustomCategory] = useState('');
+    const [useCustomCategory, setUseCustomCategory] = useState(false);
     const [formError, setFormError] = useState('');
 
     const loadCourses = () => {
@@ -56,11 +58,13 @@ export default function CoursesAdminPage() {
     const handleCreate = () => {
         setFormError('');
         if (!form.title.trim()) { setFormError('Title is required'); return; }
+        const finalCategory = useCustomCategory ? customCategory.trim() : form.category;
+        if (!finalCategory) { setFormError('Category is required'); return; }
         startTransition(async () => {
             const result = await createCourse({
                 title: form.title.trim(),
                 description: form.description.trim() || "",
-                category: form.category,
+                category: finalCategory,
                 level: form.level,
                 price: parseFloat(form.price) || 0,
                 slug: await generateSlug(form.title.trim())
@@ -68,6 +72,8 @@ export default function CoursesAdminPage() {
             if (result && result.success) {
                 setShowCreateModal(false);
                 setForm({ title: '', description: '', category: 'Development', level: 'Beginner', price: '0' });
+                setCustomCategory('');
+                setUseCustomCategory(false);
                 loadCourses();
             }
         });
@@ -117,106 +123,166 @@ export default function CoursesAdminPage() {
                 />
             </div>
 
-            {/* Table */}
+            {/* Course List */}
             {loading ? (
                 <div className="flex items-center justify-center py-24">
                     <Loader2 className="w-8 h-8 text-violet-400 animate-spin" />
                 </div>
+            ) : filtered.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-24 bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40">
+                    <BookOpen className="w-12 h-12 text-slate-200 mb-3" />
+                    <p className="text-slate-400 font-black uppercase tracking-widest text-sm">
+                        {courses.length === 0 ? 'No courses yet. Create your first!' : 'No courses match your search.'}
+                    </p>
+                </div>
             ) : (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl shadow-slate-200/40 overflow-hidden overflow-x-auto"
-                >
-                    <table className="w-full border-collapse min-w-[800px]">
-                        <thead className="border-b border-slate-100">
-                            <tr>
-                                {['Title', 'Category', 'Level', 'Price', 'Lessons', 'Students', 'Status', 'Actions'].map(h => (
-                                    <th key={h} className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">{h}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filtered.length === 0 ? (
+                <>
+                    {/* ── MOBILE: card list (hidden md+) ── */}
+                    <div className="md:hidden space-y-3">
+                        {filtered.map(course => (
+                            <motion.div
+                                key={course.id}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-white rounded-3xl border border-slate-100 shadow-md shadow-slate-200/30 p-5 space-y-4"
+                            >
+                                {/* Top row: icon + title + status badge */}
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0 mt-0.5">
+                                        <BookOpen className="w-5 h-5 text-violet-400" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-black text-slate-900 leading-snug truncate">{course.title}</p>
+                                        <p className="text-[10px] text-slate-400 font-bold">/{course.slug}</p>
+                                    </div>
+                                    <span className={`shrink-0 px-2.5 py-1 text-[9px] font-black rounded-full uppercase tracking-widest ${course.published ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
+                                        {course.published ? 'Live' : 'Draft'}
+                                    </span>
+                                </div>
+
+                                {/* Meta row: category · level · price · stats */}
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[9px] font-black rounded-full uppercase tracking-widest">{course.category}</span>
+                                    <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[9px] font-black rounded-full uppercase tracking-widest">{course.level}</span>
+                                    <span className="px-2.5 py-1 bg-violet-50 text-violet-600 text-[9px] font-black rounded-full uppercase tracking-widest">
+                                        {course.price === 0 ? 'Free' : `$${course.price}`}
+                                    </span>
+                                    <span className="px-2.5 py-1 bg-slate-50 text-slate-500 text-[9px] font-bold rounded-full">{course.lessons} lessons</span>
+                                    <span className="px-2.5 py-1 bg-slate-50 text-slate-500 text-[9px] font-bold rounded-full">{course.enrollments} students</span>
+                                </div>
+
+                                {/* Action buttons — full-width tappable row */}
+                                <div className="grid grid-cols-4 gap-2 pt-1 border-t border-slate-50">
+                                    <Link
+                                        href={`/courses/${course.slug}`}
+                                        target="_blank"
+                                        className="flex flex-col items-center gap-1 py-2 rounded-2xl text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all"
+                                        title="View"
+                                    >
+                                        <Eye className="w-4 h-4" />
+                                        <span className="text-[8px] font-black uppercase tracking-widest">View</span>
+                                    </Link>
+                                    <button
+                                        onClick={() => handleTogglePublish(course.id, course.published)}
+                                        className={`flex flex-col items-center gap-1 py-2 rounded-2xl transition-all ${course.published ? 'text-amber-500 hover:bg-amber-50' : 'text-emerald-500 hover:bg-emerald-50'}`}
+                                        title={course.published ? 'Unpublish' : 'Publish'}
+                                    >
+                                        {course.published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        <span className="text-[8px] font-black uppercase tracking-widest">{course.published ? 'Unpub' : 'Publish'}</span>
+                                    </button>
+                                    <Link
+                                        href={`/admin/courses/${course.id}`}
+                                        className="flex flex-col items-center gap-1 py-2 rounded-2xl text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all"
+                                        title="Edit"
+                                    >
+                                        <Settings className="w-4 h-4" />
+                                        <span className="text-[8px] font-black uppercase tracking-widest">Edit</span>
+                                    </Link>
+                                    <button
+                                        onClick={() => handleDelete(course.id, course.title)}
+                                        className="flex flex-col items-center gap-1 py-2 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                                        title="Delete"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                        <span className="text-[8px] font-black uppercase tracking-widest">Delete</span>
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    {/* ── DESKTOP: full table (hidden below md) ── */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="hidden md:block bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl shadow-slate-200/40 overflow-hidden"
+                    >
+                        <table className="w-full border-collapse">
+                            <thead className="border-b border-slate-100">
                                 <tr>
-                                    <td colSpan={8} className="text-center py-16 text-slate-400 font-medium">
-                                        <BookOpen className="w-12 h-12 text-slate-100 mx-auto mb-3" />
-                                        {courses.length === 0 ? 'No courses yet. Create your first course!' : 'No courses match your search.'}
-                                    </td>
+                                    {['Title', 'Category', 'Level', 'Price', 'Lessons', 'Students', 'Status', 'Actions'].map(h => (
+                                        <th key={h} className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">{h}</th>
+                                    ))}
                                 </tr>
-                            ) : filtered.map((course, idx) => (
-                                <tr key={course.id} className={`border-b border-slate-50 last:border-0 hover:bg-violet-50/50 transition-colors ${idx % 2 === 0 ? '' : 'bg-slate-50/30'}`}>
-                                    <td className="px-6 py-5">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
-                                                <BookOpen className="w-5 h-5 text-violet-400" />
+                            </thead>
+                            <tbody>
+                                {filtered.map((course, idx) => (
+                                    <tr key={course.id} className={`border-b border-slate-50 last:border-0 hover:bg-violet-50/50 transition-colors ${idx % 2 === 0 ? '' : 'bg-slate-50/30'}`}>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
+                                                    <BookOpen className="w-5 h-5 text-violet-400" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-black text-slate-900 leading-snug max-w-[220px] truncate">{course.title}</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold">/{course.slug}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-black text-slate-900 leading-snug max-w-[220px] truncate">{course.title}</p>
-                                                <p className="text-[10px] text-slate-400 font-bold">/{course.slug}</p>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black rounded-full uppercase tracking-widest whitespace-nowrap">{course.category}</span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className="text-xs font-bold text-slate-500">{course.level}</span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className="text-sm font-black text-slate-900">
+                                                {course.price === 0 ? <span className="text-emerald-600">Free</span> : `$${course.price}`}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className="text-sm font-black text-slate-700">{course.lessons}</span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className="text-sm font-black text-slate-700">{course.enrollments}</span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className={`px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest ${course.published ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
+                                                {course.published ? 'Published' : 'Draft'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-2">
+                                                <Link href={`/courses/${course.slug}`} target="_blank" className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all" title="View course">
+                                                    <Eye className="w-4 h-4" />
+                                                </Link>
+                                                <button onClick={() => handleTogglePublish(course.id, course.published)} className={`p-2 rounded-xl transition-all ${course.published ? 'text-amber-500 hover:bg-amber-50' : 'text-emerald-500 hover:bg-emerald-50'}`} title={course.published ? 'Unpublish' : 'Publish'}>
+                                                    {course.published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-emerald-500" />}
+                                                </button>
+                                                <Link href={`/admin/courses/${course.id}`} className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all" title="Edit course">
+                                                    <Settings className="w-4 h-4" />
+                                                </Link>
+                                                <button onClick={() => handleDelete(course.id, course.title)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete course">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black rounded-full uppercase tracking-widest whitespace-nowrap">{course.category}</span>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <span className="text-xs font-bold text-slate-500">{course.level}</span>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <span className="text-sm font-black text-slate-900">
-                                            {course.price === 0 ? <span className="text-emerald-600">Free</span> : `$${course.price}`}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <span className="text-sm font-black text-slate-700">{course.lessons}</span>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <span className="text-sm font-black text-slate-700">{course.enrollments}</span>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <span className={`px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest ${course.published ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
-                                            {course.published ? 'Published' : 'Draft'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <div className="flex items-center gap-2">
-                                            <Link
-                                                href={`/courses/${course.slug}`}
-                                                target="_blank"
-                                                className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all"
-                                                title="View course"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </Link>
-                                            <button
-                                                onClick={() => handleTogglePublish(course.id, course.published)}
-                                                className={`p-2 rounded-xl transition-all ${course.published ? 'text-amber-500 hover:bg-amber-50' : 'text-emerald-500 hover:bg-emerald-50'}`}
-                                                title={course.published ? 'Unpublish' : 'Publish'}
-                                            >
-                                                {course.published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-emerald-500" />}
-                                            </button>
-                                            <Link
-                                                href={`/admin/courses/${course.id}`}
-                                                className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all"
-                                                title="Edit course"
-                                            >
-                                                <Settings className="w-4 h-4" />
-                                            </Link>
-                                            <button
-                                                onClick={() => handleDelete(course.id, course.title)}
-                                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                                title="Delete course"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </motion.div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </motion.div>
+                </>
             )}
 
             {/* Create Course Modal */}
@@ -260,13 +326,33 @@ export default function CoursesAdminPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Category</label>
+                                    {/* Preset dropdown */}
                                     <select
-                                        value={form.category}
-                                        onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))}
+                                        value={useCustomCategory ? '__custom__' : form.category}
+                                        onChange={(e) => {
+                                            if (e.target.value === '__custom__') {
+                                                setUseCustomCategory(true);
+                                            } else {
+                                                setUseCustomCategory(false);
+                                                setForm(f => ({ ...f, category: e.target.value }));
+                                            }
+                                        }}
                                         className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium outline-none focus:border-violet-500 transition-all bg-white"
                                     >
                                         {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                        <option value="__custom__">+ Custom...</option>
                                     </select>
+                                    {/* Custom text input — shown when '+ Custom...' selected */}
+                                    {useCustomCategory && (
+                                        <input
+                                            autoFocus
+                                            type="text"
+                                            value={customCategory}
+                                            onChange={(e) => setCustomCategory(e.target.value)}
+                                            placeholder="e.g. Blockchain, DevOps..."
+                                            className="mt-2 w-full border border-violet-300 rounded-2xl px-4 py-3 text-sm font-medium outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 transition-all bg-violet-50/40 placeholder:text-slate-400"
+                                        />
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Level</label>

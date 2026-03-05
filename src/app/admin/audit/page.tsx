@@ -88,7 +88,7 @@ export default function AdminAuditPage() {
                 </select>
             </div>
 
-            {/* Logs Table */}
+            {/* Logs List */}
             <div className="bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
                 {loading ? (
                     <div className="p-8 space-y-4 animate-pulse">
@@ -105,56 +105,93 @@ export default function AdminAuditPage() {
                         <p className="text-sm font-medium text-slate-300 mt-1">Try adjusting your filters or search terms.</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50/50 border-b border-slate-100">
-                                <tr>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Administrator</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Action</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Details</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timestamp</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {filtered.map((log) => (
-                                    <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                                                    <User className="w-5 h-5" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-slate-900">{log.adminName}</p>
-                                                    <p className="text-[10px] font-medium text-slate-400 tracking-tight">{log.adminEmail}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getActionColor(log.action)}`}>
-                                                {log.action}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="max-w-xs md:max-w-md">
-                                                <div className="flex items-start gap-2 group">
-                                                    <Info className="w-3.5 h-3.5 text-slate-300 mt-0.5 shrink-0" />
-                                                    <p className="text-xs font-medium text-slate-600 leading-relaxed font-mono truncate hover:whitespace-normal transition-all cursor-default">
-                                                        {log.details || '—'}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-2 text-slate-400 group">
-                                                <Clock className="w-3.5 h-3.5 group-hover:text-violet-400 transition-colors" />
-                                                <span className="text-[11px] font-bold group-hover:text-slate-600 transition-colors">{log.date}</span>
-                                            </div>
-                                        </td>
+                    <>
+                        {/* ── MOBILE: timeline cards ── */}
+                        <div className="md:hidden divide-y divide-slate-50">
+                            {filtered.map((log) => (
+                                <div key={log.id} className="p-4 space-y-2.5">
+                                    {/* Admin row */}
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 shrink-0">
+                                            <User className="w-4 h-4" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-bold text-slate-900 truncate">{log.adminName}</p>
+                                            <p className="text-[10px] font-medium text-slate-400 truncate">{log.adminEmail}</p>
+                                        </div>
+                                        {/* Timestamp right-aligned */}
+                                        <div className="ml-auto flex items-center gap-1 text-slate-400 shrink-0">
+                                            <Clock className="w-3 h-3" />
+                                            <span className="text-[9px] font-bold">{log.date}</span>
+                                        </div>
+                                    </div>
+                                    {/* Action badge */}
+                                    <span className={`inline-flex px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getActionColor(log.action)}`}>
+                                        {log.action}
+                                    </span>
+                                    {/* Details */}
+                                    {log.details && (
+                                        <div className="flex items-start gap-1.5 bg-slate-50 rounded-xl px-3 py-2">
+                                            <Info className="w-3 h-3 text-slate-300 mt-0.5 shrink-0" />
+                                            <p className="text-[11px] font-medium text-slate-500 font-mono leading-relaxed break-all">{log.details}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* ── DESKTOP: full table ── */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-50/50 border-b border-slate-100">
+                                    <tr>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Administrator</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Action</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Details</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timestamp</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {filtered.map((log) => (
+                                        <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+                                                        <User className="w-5 h-5" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-slate-900">{log.adminName}</p>
+                                                        <p className="text-[10px] font-medium text-slate-400 tracking-tight">{log.adminEmail}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getActionColor(log.action)}`}>
+                                                    {log.action}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="max-w-xs md:max-w-md">
+                                                    <div className="flex items-start gap-2 group">
+                                                        <Info className="w-3.5 h-3.5 text-slate-300 mt-0.5 shrink-0" />
+                                                        <p className="text-xs font-medium text-slate-600 leading-relaxed font-mono truncate hover:whitespace-normal transition-all cursor-default">
+                                                            {log.details || '—'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-2 text-slate-400 group">
+                                                    <Clock className="w-3.5 h-3.5 group-hover:text-violet-400 transition-colors" />
+                                                    <span className="text-[11px] font-bold group-hover:text-slate-600 transition-colors">{log.date}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
                 )}
             </div>
         </div>

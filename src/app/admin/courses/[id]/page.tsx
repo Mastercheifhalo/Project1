@@ -59,6 +59,13 @@ export default function CourseEditorPage() {
     const [uploadProgress, setUploadProgress] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Drag state
+    const [dragIndex, setDragIndex] = useState<number | null>(null);
+    const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+    const [deletingLessonId, setDeletingLessonId] = useState<string | null>(null);
+    const [lessonError, setLessonError] = useState<string | null>(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
     useEffect(() => {
         if (courseId) {
             getAdminCourseById(courseId).then(data => {
@@ -115,34 +122,47 @@ export default function CourseEditorPage() {
         });
     };
 
-    const handleDeleteLesson = (lessonId: string, title: string) => {
-        if (!confirm(`Delete lesson "${title}"?`)) return;
-        startTransition(async () => {
+    const handleDeleteLesson = async (lessonId: string) => {
+        setDeletingLessonId(lessonId);
+        setConfirmDeleteId(null);
+        setLessonError(null);
+        try {
             await deleteLesson(lessonId);
             setCourse((prev: any) => ({
                 ...prev,
                 lessons: prev.lessons.filter((l: any) => l.id !== lessonId)
             }));
-        });
+        } catch (err: any) {
+            console.error('Delete lesson failed:', err);
+            setLessonError(err?.message || 'Failed to delete lesson.');
+        } finally {
+            setDeletingLessonId(null);
+        }
     };
 
     const handleMoveLesson = (index: number, direction: 'up' | 'down') => {
         if (!course?.lessons) return;
         const newLessons = [...course.lessons];
         const targetIndex = direction === 'up' ? index - 1 : index + 1;
-
         if (targetIndex < 0 || targetIndex >= newLessons.length) return;
-
-        // Swap
         [newLessons[index], newLessons[targetIndex]] = [newLessons[targetIndex], newLessons[index]];
-
-        // Update local state immediately for snappy UI
         setCourse((prev: any) => ({ ...prev, lessons: newLessons }));
+        startTransition(async () => { await reorderLessons(newLessons.map(l => l.id)); });
+    };
 
-        // Persist to DB
-        startTransition(async () => {
-            await reorderLessons(newLessons.map(l => l.id));
-        });
+    const handleDrop = (dropIndex: number) => {
+        if (dragIndex === null || dragIndex === dropIndex) {
+            setDragIndex(null);
+            setDragOverIndex(null);
+            return;
+        }
+        const newLessons = [...(course?.lessons || [])];
+        const [moved] = newLessons.splice(dragIndex, 1);
+        newLessons.splice(dropIndex, 0, moved);
+        setCourse((prev: any) => ({ ...prev, lessons: newLessons }));
+        setDragIndex(null);
+        setDragOverIndex(null);
+        startTransition(async () => { await reorderLessons(newLessons.map((l: any) => l.id)); });
     };
 
     const handleTogglePublish = () => {
@@ -313,9 +333,29 @@ export default function CourseEditorPage() {
                             </button>
                         </div>
 
-                        <div className="space-y-3">
+                        {/* Error banner */}
+                        {lessonError && (
+                            <div className="mb-4 flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-2xl">
+                                <span className="text-red-500 font-black text-xs uppercase tracking-widest shrink-0 mt-0.5">Error</span>
+                                <p className="text-sm font-medium text-red-700 flex-1 break-words">{lessonError}</p>
+                                <button onClick={() => setLessonError(null)} className="text-red-400 hover:text-red-600 shrink-0 text-lg leading-none">&times;</button>
+                            </div>
+                        )}
+
+                        <div className="space-y-1">
                             {course.lessons?.map((lesson: any, index: number) => (
-                                <div key={lesson.id} className="group">
+                                <div key={lesson.id}
+                                    className="group"
+                                    onDragOver={(e) => { e.preventDefault(); setDragOverIndex(index); }}
+                                    onDragEnd={() => { setDragIndex(null); setDragOverIndex(null); }}
+                                    onDrop={(e) => { e.preventDefault(); handleDrop(index); }}
+                                >
+                                    {/* Drop indicator line above */}
+                                    <div className={`h-0.5 rounded-full mx-4 mb-1 transition-all duration-150 ${dragOverIndex === index && dragIndex !== index
+                                        ? 'bg-violet-500 opacity-100 shadow-[0_0_6px_rgba(139,92,246,0.6)]'
+                                        : 'opacity-0'
+                                        }`} />
+
                                     {editingLessonId === lesson.id ? (
                                         <div className="p-6 bg-slate-50 rounded-3xl border border-violet-100 space-y-4">
                                             <div className="grid grid-cols-2 gap-4">
@@ -405,7 +445,15 @@ export default function CourseEditorPage() {
                                         <div className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:border-violet-200 hover:shadow-lg hover:shadow-violet-600/5 transition-all">
                                             <div className="flex items-center gap-4">
                                                 <div className="text-[10px] font-black text-slate-300 w-4">0{index + 1}</div>
-                                                <GripVertical className="w-4 h-4 text-slate-200 cursor-grab active:cursor-grabbing" />
+                                                <div
+                                                    draggable={editingLessonId !== lesson.id}
+                                                    onDragStart={(e) => { e.stopPropagation(); setDragIndex(index); }}
+                                                    className="cursor-grab active:cursor-grabbing touch-none"
+                                                    title="Drag to reorder"
+                                                >
+                                                    <GripVertical className={`w-4 h-4 transition-colors ${dragIndex === index ? 'text-violet-500' : 'text-slate-300 group-hover:text-slate-400'
+                                                        }`} />
+                                                </div>
                                                 <div>
                                                     <p className="text-sm font-bold text-slate-900 flex items-center gap-2">
                                                         {lesson.title}
@@ -451,13 +499,33 @@ export default function CourseEditorPage() {
                                                 >
                                                     <ChevronRight className="w-4 h-4" />
                                                 </button>
-                                                <button
-                                                    onClick={() => handleDeleteLesson(lesson.id, lesson.title)}
-                                                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                                    title="Delete Lesson"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                                                {/* Two-step delete confirmation */}
+                                                {confirmDeleteId === lesson.id ? (
+                                                    <div className="flex items-center gap-1">
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleDeleteLesson(lesson.id); }}
+                                                            disabled={deletingLessonId === lesson.id}
+                                                            className="px-2.5 py-1 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-red-600 transition-all disabled:opacity-50 flex items-center gap-1"
+                                                        >
+                                                            {deletingLessonId === lesson.id ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                                                            Confirm
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
+                                                            className="px-2 py-1 text-[9px] font-black uppercase text-slate-400 hover:text-slate-600 rounded-lg"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(lesson.id); }}
+                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                                        title="Delete Lesson"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     )}
