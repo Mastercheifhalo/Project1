@@ -157,7 +157,7 @@ export default function AdminRevenuePage() {
                 />
             </div>
 
-            {/* Transactions Table */}
+            {/* Transactions List */}
             <div className="bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
                 {loading ? (
                     <div className="p-8 space-y-4 animate-pulse">
@@ -172,66 +172,110 @@ export default function AdminRevenuePage() {
                         <p className="text-sm font-medium text-slate-300 mt-1">Revenue data will appear here once payments are processed.</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-slate-100">
-                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
-                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Plan</th>
-                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</th>
-                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hidden sm:table-cell">Method</th>
-                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filtered.map(payment => (
-                                    <tr key={payment.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <p className="text-sm font-bold text-slate-900 truncate max-w-[140px]">{payment.userName}</p>
-                                            <p className="text-xs font-medium text-slate-400 truncate max-w-[140px]">{payment.userEmail}</p>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm font-bold text-slate-700 hidden md:table-cell">{payment.plan}</td>
-                                        <td className="px-6 py-4 text-sm font-black text-slate-900">${payment.amount}</td>
-                                        <td className="px-6 py-4 hidden sm:table-cell">
-                                            <span className="text-xs font-bold text-slate-500">
-                                                {payment.method}{payment.coin ? ` (${payment.coin})` : ''}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`inline-flex px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${statusColor(payment.status)}`}>
-                                                {payment.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-3">
-                                                {payment.screenshot && (
-                                                    <button
-                                                        onClick={() => setPreviewImage(payment.screenshot)}
-                                                        className="p-2 bg-slate-100 text-slate-500 hover:text-violet-600 rounded-lg transition-all active:scale-95"
-                                                        title="View Proof"
-                                                    >
-                                                        <Eye className="w-4 h-4" />
-                                                    </button>
-                                                )}
-                                                {payment.status === 'PENDING' ? (
-                                                    <button
-                                                        onClick={() => handleActivate(payment.id)}
-                                                        disabled={activatingId === payment.id}
-                                                        className="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-md shadow-violet-600/10 active:scale-95 disabled:opacity-50"
-                                                    >
-                                                        {activatingId === payment.id ? 'Processing...' : 'Verify & Activate'}
-                                                    </button>
-                                                ) : (
-                                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Verified</span>
-                                                )}
-                                            </div>
-                                        </td>
+                    <>
+                        {/* ── MOBILE: transaction cards ── */}
+                        <div className="md:hidden divide-y divide-slate-50">
+                            {filtered.map(payment => (
+                                <div key={payment.id} className="p-4 space-y-3">
+                                    {/* Top: user + status */}
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-bold text-slate-900 truncate">{payment.userName}</p>
+                                            <p className="text-xs font-medium text-slate-400 truncate">{payment.userEmail}</p>
+                                        </div>
+                                        <span className={`shrink-0 inline-flex px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-full border ${statusColor(payment.status)}`}>
+                                            {payment.status}
+                                        </span>
+                                    </div>
+                                    {/* Meta pills */}
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="px-2.5 py-1 bg-violet-50 text-violet-700 text-[9px] font-black rounded-full uppercase tracking-widest">{payment.plan}</span>
+                                        <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[9px] font-black rounded-full">
+                                            {payment.method}{payment.coin ? ` · ${payment.coin}` : ''}
+                                        </span>
+                                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[9px] font-black rounded-full">${payment.amount}</span>
+                                        <span className="px-2.5 py-1 bg-slate-50 text-slate-400 text-[9px] font-bold rounded-full">{payment.date}</span>
+                                    </div>
+                                    {/* Actions row */}
+                                    <div className="flex gap-2 pt-1">
+                                        {payment.screenshot && (
+                                            <button
+                                                onClick={() => setPreviewImage(payment.screenshot)}
+                                                className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 text-slate-600 hover:text-violet-600 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
+                                            >
+                                                <Eye className="w-3.5 h-3.5" /> Proof
+                                            </button>
+                                        )}
+                                        {payment.status === 'PENDING' ? (
+                                            <button
+                                                onClick={() => handleActivate(payment.id)}
+                                                disabled={activatingId === payment.id}
+                                                className="flex-1 py-2 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-md shadow-violet-600/10 active:scale-95 disabled:opacity-50"
+                                            >
+                                                {activatingId === payment.id ? 'Processing...' : '✓ Verify & Activate'}
+                                            </button>
+                                        ) : (
+                                            <span className="flex-1 py-2 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest">Verified ✓</span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* ── DESKTOP: full table ── */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-slate-100">
+                                        <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
+                                        <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Plan</th>
+                                        <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</th>
+                                        <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
+                                        <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                        <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {filtered.map(payment => (
+                                        <tr key={payment.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <p className="text-sm font-bold text-slate-900 truncate max-w-[140px]">{payment.userName}</p>
+                                                <p className="text-xs font-medium text-slate-400 truncate max-w-[140px]">{payment.userEmail}</p>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm font-bold text-slate-700">{payment.plan}</td>
+                                            <td className="px-6 py-4 text-sm font-black text-slate-900">${payment.amount}</td>
+                                            <td className="px-6 py-4">
+                                                <span className="text-xs font-bold text-slate-500">
+                                                    {payment.method}{payment.coin ? ` (${payment.coin})` : ''}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${statusColor(payment.status)}`}>
+                                                    {payment.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="flex items-center justify-end gap-3">
+                                                    {payment.screenshot && (
+                                                        <button onClick={() => setPreviewImage(payment.screenshot)} className="p-2 bg-slate-100 text-slate-500 hover:text-violet-600 rounded-lg transition-all active:scale-95" title="View Proof">
+                                                            <Eye className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                    {payment.status === 'PENDING' ? (
+                                                        <button onClick={() => handleActivate(payment.id)} disabled={activatingId === payment.id} className="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-md shadow-violet-600/10 active:scale-95 disabled:opacity-50">
+                                                            {activatingId === payment.id ? 'Processing...' : 'Verify & Activate'}
+                                                        </button>
+                                                    ) : (
+                                                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Verified</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
                 )}
             </div>
 
