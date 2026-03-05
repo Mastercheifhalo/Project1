@@ -27,8 +27,8 @@ const Testimonials = () => {
     ];
 
     return (
-        <section className="py-24 max-w-7xl mx-auto px-4 md:px-6 bg-slate-50/50 rounded-[3rem] border border-slate-100 mb-24">
-            <div className="text-center mb-16">
+        <section className="py-12 md:py-16 max-w-7xl mx-auto px-4 md:px-6 bg-slate-50/50 rounded-[3rem] border border-slate-100 mb-12">
+            <div className="text-center mb-8">
                 <h2 className="text-4xl font-black mb-4 tracking-tight uppercase">Student <span className="premium-gradient">Stories</span></h2>
                 <p className="text-slate-600 font-medium text-lg italic max-w-xl mx-auto">
                     "Curiosity leads to career breakthroughs. See how our students transformed their lives."

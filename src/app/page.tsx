@@ -62,7 +62,7 @@ export default function Home() {
 
       {/* ── HERO ─────────────────────────────── */}
       <ScrollReveal direction="none">
-        <section className="relative pt-32 md:pt-36 pb-16 md:pb-20 px-4 md:px-6 max-w-7xl mx-auto text-center">
+        <section className="relative pt-20 md:pt-28 pb-8 md:pb-12 px-4 md:px-6 max-w-7xl mx-auto text-center">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_70%)] opacity-5 pointer-events-none -z-10" />
 
           <ScrollReveal direction="up" delay={0.1}>
@@ -104,7 +104,7 @@ export default function Home() {
 
       {/* ── FEATURES / VALUE PROPS ───────────── */}
       <ScrollReveal>
-        <section className="py-16 px-4 md:px-6 max-w-7xl mx-auto">
+        <section className="pt-2 pb-8 px-4 md:px-6 max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((f, i) => (
               <ScrollReveal key={i} delay={i * 0.1}>
@@ -123,8 +123,8 @@ export default function Home() {
 
       {/* ── TRIAL VIDEOS ─────────────────────── */}
       <ScrollReveal>
-        <section id="trial" className="py-24 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-32">
-          <div className="text-center mb-16">
+        <section id="trial" className="py-12 md:py-16 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-24">
+          <div className="text-center mb-8">
             <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight uppercase">High-Quality <span className="text-violet-500">Learning</span></h2>
             <p className="text-slate-600 max-w-xl mx-auto text-lg leading-relaxed font-medium">
               Get a taste of what&apos;s inside. The first lesson of every course is completely free — no account required.
@@ -146,8 +146,8 @@ export default function Home() {
 
       {/* ── PRICING ──────────────────────────── */}
       <ScrollReveal>
-        <section id="pricing" className="py-24 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-32">
-          <div className="text-center mb-16">
+        <section id="pricing" className="py-12 md:py-16 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-24">
+          <div className="text-center mb-8">
             <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight uppercase">Simple, Transparent <span className="text-violet-500">Pricing</span></h2>
             <p className="text-slate-600 max-w-xl mx-auto text-lg leading-relaxed font-medium">
               Subscribe for full catalog access, or purchase individual courses for lifetime ownership. Pay with crypto or card.
@@ -182,7 +182,7 @@ export default function Home() {
 
       {/* ── FINAL CTA ────────────────────────── */}
       <ScrollReveal direction="none">
-        <section className="py-20 md:py-24 max-w-7xl mx-auto px-4 md:px-6 mb-24">
+        <section className="py-12 md:py-16 max-w-7xl mx-auto px-4 md:px-6 mb-12">
           <div className="relative bg-slate-900 rounded-[2.5rem] md:rounded-[3rem] p-10 md:p-24 overflow-hidden text-center group">
             <div className="absolute top-0 right-0 w-96 h-96 bg-violet-600/30 blur-[100px] -mr-48 -mt-48 group-hover:bg-violet-600/40 transition-colors" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-sky-600/20 blur-[100px] -ml-48 -mb-48 group-hover:bg-sky-600/30 transition-colors" />
@@ -214,7 +214,7 @@ export default function Home() {
       </ScrollReveal>
 
       {/* ── FOOTER ───────────────────────────── */}
-      <footer className="border-t border-slate-100 pt-14 pb-12 px-4 md:px-6 max-w-7xl mx-auto">
+      <footer className="border-t border-slate-100 pt-10 pb-8 px-4 md:px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
 
           {/* Brand */}
@@ -257,9 +257,9 @@ export default function Home() {
           <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Legal</p>
             <ul className="space-y-3 text-sm font-medium text-slate-500">
-              <li><span className="cursor-default">Privacy Policy</span></li>
-              <li><span className="cursor-default">Terms of Service</span></li>
-              <li><span className="cursor-default">Refund Policy</span></li>
+              <li><Link href="/legal/privacy" className="hover:text-violet-600 transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/legal/terms" className="hover:text-violet-600 transition-colors">Terms of Service</Link></li>
+              <li><Link href="/legal/refund" className="hover:text-violet-600 transition-colors">Refund Policy</Link></li>
             </ul>
           </div>
 
