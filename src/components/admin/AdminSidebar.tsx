@@ -37,28 +37,21 @@ const AdminSidebar = () => {
 
     return (
         <>
-            {/* Mobile Toggle */}
-            <div className="lg:hidden fixed top-4 left-4 z-[1010]">
-                <motion.button
-                    onClick={() => setIsMobileOpen(!isMobileOpen)}
-                    whileTap={{ scale: 0.9 }}
-                    whileHover={{ scale: 1.05 }}
-                    className="relative p-3 bg-slate-900 backdrop-blur-xl rounded-2xl shadow-lg shadow-slate-900/25 text-white overflow-hidden group"
-                    aria-label="Toggle admin sidebar"
-                >
-                    {/* Hover glow ring */}
-                    <span className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 ring-2 ring-white/20" />
-                    <motion.div
-                        key={isMobileOpen ? 'open' : 'closed'}
-                        initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
-                        animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                        exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
-                        transition={{ duration: 0.2, type: 'spring', bounce: 0.4 }}
+            {/* Mobile Hamburger — only shown when sidebar is CLOSED to prevent logo overlap */}
+            {!isMobileOpen && (
+                <div className="lg:hidden fixed top-4 left-4 z-[1010]">
+                    <motion.button
+                        onClick={() => setIsMobileOpen(true)}
+                        whileTap={{ scale: 0.9 }}
+                        whileHover={{ scale: 1.05 }}
+                        className="relative p-3 bg-slate-900 rounded-2xl shadow-lg shadow-slate-900/25 text-white overflow-hidden group"
+                        aria-label="Open admin sidebar"
                     >
-                        {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                    </motion.div>
-                </motion.button>
-            </div>
+                        <span className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 ring-2 ring-white/20" />
+                        <Menu className="w-5 h-5" />
+                    </motion.button>
+                </div>
+            )}
 
             {/* Mobile Overlay */}
             {isMobileOpen && (
@@ -69,19 +62,18 @@ const AdminSidebar = () => {
             )}
 
             <div
-                className={`fixed top-0 left-0 h-full bg-white/40 backdrop-blur-xl border-r border-white/20 transition-all duration-500 z-[1002] flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] ${isCollapsed ? 'w-20' : 'w-64'} ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-                    }`}
+                className={`fixed top-0 left-0 h-full bg-white/40 backdrop-blur-xl border-r border-white/20 transition-all duration-500 z-[1002] flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] ${isCollapsed ? 'w-20' : 'w-64'} ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
             >
-                {/* Header */}
-                <div className="p-6 flex items-center justify-between">
+                {/* Header — close button lives here on mobile to avoid overlap */}
+                <div className="p-5 flex items-center gap-2">
                     {!isCollapsed && (
                         <motion.div
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="flex flex-col"
+                            className="flex-1 min-w-0"
                         >
                             <Link href="/" className="flex items-center gap-2 group">
-                                <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-slate-900/20 group-hover:scale-110 transition-transform duration-300">
+                                <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-slate-900/20 group-hover:scale-110 transition-transform duration-300 shrink-0">
                                     <ShieldCheck className="text-white w-5 h-5" />
                                 </div>
                                 <span className="font-black tracking-tighter text-slate-900 text-lg">
@@ -94,6 +86,17 @@ const AdminSidebar = () => {
                         <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center mx-auto shadow-lg shadow-slate-900/20">
                             <ShieldCheck className="text-white w-5 h-5" />
                         </div>
+                    )}
+                    {/* X button inside header — only on mobile when open, zero overlap with logo */}
+                    {isMobileOpen && !isCollapsed && (
+                        <motion.button
+                            onClick={() => setIsMobileOpen(false)}
+                            whileTap={{ scale: 0.9 }}
+                            className="lg:hidden ml-auto shrink-0 p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-all"
+                            aria-label="Close sidebar"
+                        >
+                            <X className="w-4 h-4" />
+                        </motion.button>
                     )}
                 </div>
 
