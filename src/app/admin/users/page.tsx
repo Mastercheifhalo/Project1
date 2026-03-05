@@ -16,7 +16,8 @@ import {
     Trash2,
     CheckCircle2,
     AlertCircle,
-    Loader2
+    Loader2,
+    ChevronDown
 } from 'lucide-react';
 import {
     getAdminUsers,
@@ -377,12 +378,13 @@ export default function AdminUsersPage() {
                                             </div>
 
                                             {/* Add Enrollment */}
-                                            <div className="flex flex-col sm:flex-row gap-2">
-                                                <div className="flex-1 min-w-0">
+                                            <div className="flex flex-col sm:flex-row gap-3">
+                                                {/* Custom Select Dropdown */}
+                                                <div className="flex-1 min-w-0 relative group/select">
                                                     <select
                                                         value={selectedCourseId}
                                                         onChange={(e) => setSelectedCourseId(e.target.value)}
-                                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-violet-500 transition-all appearance-none"
+                                                        className="w-full bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 pr-10 text-sm font-semibold text-slate-700 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 hover:border-slate-200 transition-all duration-200 appearance-none cursor-pointer shadow-sm"
                                                     >
                                                         <option value="">Select course to grant access...</option>
                                                         {allCourses
@@ -390,13 +392,23 @@ export default function AdminUsersPage() {
                                                             .map(c => <option key={c.id} value={c.id}>{c.title}</option>)
                                                         }
                                                     </select>
+                                                    {/* Custom chevron indicator */}
+                                                    <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-slate-100 group-focus-within/select:bg-violet-100 flex items-center justify-center transition-colors duration-200">
+                                                        <ChevronDown className="w-4 h-4 text-slate-400 group-focus-within/select:text-violet-500 transition-colors duration-200" />
+                                                    </div>
                                                 </div>
+                                                {/* Grant Access Button */}
                                                 <button
                                                     onClick={handleGrantCourse}
                                                     disabled={isPending || !selectedCourseId}
-                                                    className="shrink-0 px-5 py-3 bg-slate-900 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-xl shadow-slate-900/10"
+                                                    className="shrink-0 relative overflow-hidden px-5 py-3 bg-gradient-to-br from-slate-800 to-slate-950 text-white font-black text-xs uppercase tracking-widest rounded-2xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-slate-900/20 hover:shadow-xl hover:shadow-slate-900/30 hover:scale-[1.02] active:scale-[0.97] group/btn"
                                                 >
-                                                    {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-4 h-4" />}
+                                                    {/* Shimmer highlight on hover */}
+                                                    <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-500 ease-in-out" />
+                                                    {isPending
+                                                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                        : <Plus className="w-4 h-4 transition-transform duration-200 group-hover/btn:rotate-90" />
+                                                    }
                                                     <span>Grant Access</span>
                                                 </button>
                                             </div>

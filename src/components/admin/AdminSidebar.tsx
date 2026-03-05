@@ -17,7 +17,9 @@ import {
     ChevronLeft,
     ChevronRight,
     ShieldCheck,
-    ClipboardList
+    ClipboardList,
+    Menu,
+    X
 } from 'lucide-react';
 
 const AdminSidebar = () => {
@@ -37,12 +39,25 @@ const AdminSidebar = () => {
         <>
             {/* Mobile Toggle */}
             <div className="lg:hidden fixed top-4 left-4 z-[1010]">
-                <button
+                <motion.button
                     onClick={() => setIsMobileOpen(!isMobileOpen)}
-                    className="p-3 bg-white/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg text-slate-900"
+                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
+                    className="relative p-3 bg-slate-900 backdrop-blur-xl rounded-2xl shadow-lg shadow-slate-900/25 text-white overflow-hidden group"
+                    aria-label="Toggle admin sidebar"
                 >
-                    <ShieldCheck className="w-6 h-6" />
-                </button>
+                    {/* Hover glow ring */}
+                    <span className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 ring-2 ring-white/20" />
+                    <motion.div
+                        key={isMobileOpen ? 'open' : 'closed'}
+                        initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                        animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                        exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                        transition={{ duration: 0.2, type: 'spring', bounce: 0.4 }}
+                    >
+                        {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                    </motion.div>
+                </motion.button>
             </div>
 
             {/* Mobile Overlay */}
