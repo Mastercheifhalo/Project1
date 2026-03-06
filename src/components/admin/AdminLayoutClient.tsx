@@ -11,7 +11,7 @@ const AdminLayoutContent = ({ children }: { children: React.ReactNode }) => {
         <div className="min-h-screen bg-slate-50/50">
             <AdminSidebar />
             <main className={`transition-all duration-500 ease-in-out ${isCollapsed ? 'lg:pl-20' : 'lg:pl-64'
-                } pl-0 pt-20 lg:pt-0`}>
+                } pl-0 pt-24 lg:pt-8`}>
                 <div className="max-w-7xl mx-auto p-4 md:p-12">
                     {children}
                 </div>

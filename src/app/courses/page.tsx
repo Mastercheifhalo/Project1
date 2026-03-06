@@ -55,9 +55,9 @@ export default function CoursesPage() {
     });
 
     return (
-        <main className="min-h-screen pt-32 pb-24 px-4 md:px-6 max-w-7xl mx-auto">
+        <main className="min-h-screen pt-20 pb-16 px-4 md:px-6 max-w-7xl mx-auto">
             {/* Header */}
-            <div className="mb-12">
+            <div className="mb-8">
                 <h1 className="text-5xl font-black mb-4 tracking-tight">Explore <span className="premium-gradient">Courses</span></h1>
                 <p className="text-slate-600 max-w-2xl text-lg font-medium">
                     Level up your skills with our expert-led courses. Watch free previews, subscribe for full access, or buy individual courses.
@@ -65,7 +65,7 @@ export default function CoursesPage() {
             </div>
 
             {/* Filters & Search */}
-            <div className="flex flex-col md:flex-row gap-6 mb-12">
+            <div className="flex flex-col md:flex-row gap-6 mb-8">
                 <div className="relative flex-1">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <input
@@ -158,34 +158,34 @@ export default function CoursesPage() {
                                     <h3 className="text-xl font-black mb-6 text-slate-900 leading-tight group-hover:text-violet-600 transition-colors uppercase tracking-tight">{course.title}</h3>
 
                                     <div className="mt-auto space-y-6">
-                                            <div className="flex items-center gap-6 text-sm text-slate-500 font-bold">
-                                                {course.totalDuration > 0 && (
-                                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg">
-                                                        <Clock className="w-4 h-4" />
-                                                        <span>{formatDuration(course.totalDuration)}</span>
-                                                    </div>
-                                                )}
+                                        <div className="flex items-center gap-6 text-sm text-slate-500 font-bold">
+                                            {course.totalDuration > 0 && (
                                                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg">
-                                                    <BookOpen className="w-4 h-4" />
-                                                    <span>{course.lessonCount} lessons</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Progress Bar for Enrolled Users */}
-                                            {course.isEnrolled && course.progress !== null && (
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Your Progress</span>
-                                                        <span className="text-[10px] font-black text-violet-600">{course.progress}%</span>
-                                                    </div>
-                                                    <div className="w-full bg-slate-50 h-1.5 rounded-full overflow-hidden">
-                                                        <div
-                                                            className="h-full bg-violet-600 transition-all duration-1000"
-                                                            style={{ width: `${course.progress}%` }}
-                                                        />
-                                                    </div>
+                                                    <Clock className="w-4 h-4" />
+                                                    <span>{formatDuration(course.totalDuration)}</span>
                                                 </div>
                                             )}
+                                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg">
+                                                <BookOpen className="w-4 h-4" />
+                                                <span>{course.lessonCount} lessons</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Progress Bar for Enrolled Users */}
+                                        {course.isEnrolled && course.progress !== null && (
+                                            <div className="space-y-2">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Your Progress</span>
+                                                    <span className="text-[10px] font-black text-violet-600">{course.progress}%</span>
+                                                </div>
+                                                <div className="w-full bg-slate-50 h-1.5 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-violet-600 transition-all duration-1000"
+                                                        style={{ width: `${course.progress}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
 
                                         <div className="flex items-center justify-between pt-6 border-t border-slate-50">
                                             <div>
@@ -209,7 +209,7 @@ export default function CoursesPage() {
                     </div>
 
                     {!loading && filteredCourses.length === 0 && (
-                        <div className="text-center py-24">
+                        <div className="text-center py-12">
                             <GraduationCap className="w-16 h-16 text-slate-200 mx-auto mb-4" />
                             <p className="text-slate-500 text-xl font-medium">
                                 {courses.length === 0 ? 'No courses have been published yet.' : 'No courses found matching your criteria.'}

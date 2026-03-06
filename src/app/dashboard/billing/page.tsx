@@ -67,15 +67,12 @@ export default function BillingPage() {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-slate-950 p-8 rounded-[2rem] text-white relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/20 blur-3xl rounded-full -mr-16 -mt-16" />
-                    <div className="relative z-10">
-                        <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Total Invested</p>
-                        <h3 className="text-4xl font-black mb-2">${invoices.reduce((sum, inv) => sum + inv.amount, 0).toLocaleString()}</h3>
-                        <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
-                            <ArrowUpRight className="w-3 h-3" />
-                            <span>Knowledge Capital</span>
-                        </div>
+                <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-xl hover:shadow-slate-200/50 transition-all">
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Total Invested</p>
+                    <h3 className="text-4xl font-black mb-2 text-slate-900">${invoices.reduce((sum, inv) => sum + inv.amount, 0).toLocaleString()}</h3>
+                    <div className="flex items-center gap-2 text-emerald-500 text-xs font-bold">
+                        <ArrowUpRight className="w-3 h-3" />
+                        <span>Knowledge Capital</span>
                     </div>
                 </div>
 
@@ -110,7 +107,58 @@ export default function BillingPage() {
                     </span>
                 </div>
 
-                <div className="overflow-x-auto">
+                {/* ── MOBILE: invoice cards ── */}
+                <div className="md:hidden divide-y divide-slate-50">
+                    {isLoading ? (
+                        <div className="p-8 space-y-4 animate-pulse">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="h-24 bg-slate-50 rounded-2xl" />
+                            ))}
+                        </div>
+                    ) : invoices.length === 0 ? (
+                        <div className="px-8 py-16 text-center">
+                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <FileText className="w-8 h-8 text-slate-200" />
+                            </div>
+                            <p className="text-slate-900 font-black text-lg">No invoices found</p>
+                            <p className="text-slate-400 font-medium text-xs mt-1">Your payment history will appear here once verified.</p>
+                        </div>
+                    ) : (
+                        invoices.map((inv) => (
+                            <div key={inv.id} className="p-5 space-y-4 flex flex-col group hover:bg-slate-50/50 transition-colors">
+                                {/* Top Row: ID & Status */}
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="min-w-0">
+                                        <span className="text-sm font-black text-slate-900"># {inv.number}</span>
+                                        <p className="text-[11px] font-bold text-slate-500 mt-1 truncate">{inv.item}</p>
+                                    </div>
+                                    <span className={`shrink-0 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-full ${inv.status.toUpperCase() === 'PAID'
+                                        ? 'bg-emerald-100 text-emerald-600'
+                                        : 'bg-amber-100 text-amber-600'
+                                        }`}>
+                                        {inv.status}
+                                    </span>
+                                </div>
+                                {/* Bottom Row: Amount, Date, Action */}
+                                <div className="flex items-center justify-between pt-2">
+                                    <div>
+                                        <span className="text-lg font-black text-slate-900">${inv.amount}</span>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{inv.date}</p>
+                                    </div>
+                                    <Link
+                                        href={`/dashboard/billing/invoice/${inv.id}`}
+                                        className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 text-slate-600 hover:text-violet-600 hover:bg-violet-50 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
+                                    >
+                                        <ExternalLink className="w-3.5 h-3.5" /> View
+                                    </Link>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* ── DESKTOP: full table ── */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50/50">

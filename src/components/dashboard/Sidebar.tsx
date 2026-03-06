@@ -21,11 +21,12 @@ import {
 interface SidebarProps {
     isOpen?: boolean;
     onClose?: () => void;
+    isCollapsed?: boolean;
+    onToggleCollapse?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose, isCollapsed = false, onToggleCollapse }) => {
     const pathname = usePathname();
-    const [isCollapsed, setIsCollapsed] = React.useState(false);
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === 'ADMIN';
     const navLinks = [
@@ -46,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
                 }`}
         >
             {/* Header */}
-            <div className="p-6 flex items-center justify-between">
+            <div className={`p-6 md:pt-8 flex items-center ${isCollapsed ? 'justify-center mx-auto' : 'justify-between md:px-8'}`}>
                 {!isCollapsed && (
                     <motion.div
                         initial={{ opacity: 0, x: -10 }}
@@ -149,7 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
             <div className="p-4 space-y-2">
                 {/* Collapse toggle — desktop only */}
                 <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    onClick={() => onToggleCollapse && onToggleCollapse()}
                     className="hidden md:flex w-full items-center gap-3 p-3 rounded-2xl font-bold text-slate-400 hover:bg-white/40 hover:text-slate-900 transition-all group"
                 >
                     <div className="group-hover:rotate-180 transition-transform duration-500">

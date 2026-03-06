@@ -77,7 +77,7 @@ function LoginForm() {
     };
 
     return (
-        <div className="min-h-screen relative flex items-center justify-center p-4 sm:p-6">
+        <div className="min-h-screen relative flex flex-col items-center justify-center pt-32 pb-16 px-4 sm:px-6">
             <AuraBackground progress={20} />
 
             <motion.div
@@ -86,9 +86,7 @@ function LoginForm() {
                 transition={{ duration: 0.5 }}
                 className="w-full max-w-md"
             >
-                <div className="bg-white/40 backdrop-blur-2xl p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-white/20 shadow-2xl overflow-hidden relative group">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-indigo-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
-
+                <div className="bg-white/40 backdrop-blur-2xl p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-white/20 shadow-2xl overflow-hidden relative">
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"

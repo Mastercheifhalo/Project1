@@ -7,7 +7,9 @@ import {
     HelpCircle,
     LifeBuoy,
     Zap,
-    Shield
+    Shield,
+    GraduationCap,
+    ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -67,91 +69,112 @@ const contactOptions = [
 
 export default function SupportPage() {
     return (
-        <main className="min-h-screen pt-32 pb-24 px-4 md:px-6 max-w-5xl mx-auto">
-
-            {/* Hero */}
-            <div className="mb-16 text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-50 border border-violet-100 rounded-full text-violet-600 text-xs font-black uppercase tracking-widest mb-6">
-                    <LifeBuoy className="w-4 h-4" />
-                    Support Center
-                </div>
-                <h1 className="text-5xl font-black tracking-tight mb-4">How can we <span className="premium-gradient">help you?</span></h1>
-                <p className="text-slate-500 text-lg font-medium max-w-xl mx-auto">
-                    Find answers to common questions or reach out to our team directly.
-                </p>
-            </div>
-
-            {/* Contact Options */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
-                {contactOptions.map(opt => (
-                    <a
-                        key={opt.title}
-                        href={opt.href}
-                        className="group relative overflow-hidden bg-white border border-slate-100 rounded-[2rem] p-8 hover:border-violet-200 hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 flex flex-col gap-6"
-                    >
-                        <div className={`w-16 h-16 rounded-[1.25rem] bg-gradient-to-br ${opt.color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500`}>
-                            {opt.icon}
+        <div className="min-h-screen">
+            {/* Top Nav */}
+            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-100 shadow-sm">
+                <div className="max-w-5xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+                    <Link href="/" className="flex items-center gap-2.5 group">
+                        <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center shadow-md shadow-violet-500/20 group-hover:scale-105 transition-transform">
+                            <GraduationCap className="w-4 h-4 text-white" />
                         </div>
-                        <div>
-                            <h3 className="text-xl font-black text-slate-900 mb-1">{opt.title}</h3>
-                            <p className="text-slate-500 text-sm font-medium">{opt.description}</p>
-                        </div>
-                        <div className="mt-auto flex items-center gap-2 text-violet-600 font-bold text-sm group-hover:gap-3 transition-all">
-                            {opt.action} <ChevronRight className="w-4 h-4" />
-                        </div>
-                    </a>
-                ))}
-            </div>
-
-            {/* Quick Links */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20">
-                {[
-                    { icon: <Zap className="w-5 h-5" />, label: 'Getting Started', href: '/courses' },
-                    { icon: <Shield className="w-5 h-5" />, label: 'Account & Security', href: '/dashboard/settings' },
-                    { icon: <BookOpen className="w-5 h-5" />, label: 'My Courses', href: '/dashboard/my-courses' },
-                    { icon: <HelpCircle className="w-5 h-5" />, label: 'Billing & Plans', href: '/pricing' },
-                ].map(link => (
-                    <Link
-                        key={link.label}
-                        href={link.href}
-                        className="flex flex-col items-center gap-3 p-6 bg-white border border-slate-100 rounded-[1.5rem] text-center hover:border-violet-200 hover:shadow-lg transition-all group"
-                    >
-                        <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-violet-50 group-hover:text-violet-600 transition-all">
-                            {link.icon}
-                        </div>
-                        <span className="text-xs font-black text-slate-600 uppercase tracking-widest">{link.label}</span>
+                        <span className="font-black text-slate-900 text-lg tracking-tight">CoursePro</span>
                     </Link>
-                ))}
-            </div>
-
-            {/* FAQs */}
-            <div>
-                <div className="flex items-center gap-3 mb-8">
-                    <HelpCircle className="w-6 h-6 text-violet-500" />
-                    <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Frequently Asked Questions</h2>
+                    <Link
+                        href="/"
+                        className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-violet-600 transition-colors"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        Back to Home
+                    </Link>
                 </div>
-                <div className="space-y-4">
-                    {faqs.map((faq, i) => (
-                        <div key={i} className="bg-white border border-slate-100 rounded-[1.5rem] p-8 hover:border-violet-100 transition-all">
-                            <h3 className="text-base font-black text-slate-900 mb-3">{faq.q}</h3>
-                            <p className="text-slate-500 font-medium leading-relaxed text-sm">{faq.a}</p>
-                        </div>
+            </header>
+
+            <main className="pt-10 pb-16 px-4 md:px-6 max-w-5xl mx-auto">
+
+                {/* Hero */}
+                <div className="mb-10 text-center">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-50 border border-violet-100 rounded-full text-violet-600 text-xs font-black uppercase tracking-widest mb-6">
+                        <LifeBuoy className="w-4 h-4" />
+                        Support Center
+                    </div>
+                    <h1 className="text-5xl font-black tracking-tight mb-4">How can we <span className="premium-gradient">help you?</span></h1>
+                    <p className="text-slate-500 text-lg font-medium max-w-xl mx-auto">
+                        Find answers to common questions or reach out to our team directly.
+                    </p>
+                </div>
+
+                {/* Contact Options */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    {contactOptions.map(opt => (
+                        <a
+                            key={opt.title}
+                            href={opt.href}
+                            className="group relative overflow-hidden bg-white border border-slate-100 rounded-[2rem] p-8 hover:border-violet-200 hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 flex flex-col gap-6"
+                        >
+                            <div className={`w-16 h-16 rounded-[1.25rem] bg-gradient-to-br ${opt.color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500`}>
+                                {opt.icon}
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-slate-900 mb-1">{opt.title}</h3>
+                                <p className="text-slate-500 text-sm font-medium">{opt.description}</p>
+                            </div>
+                            <div className="mt-auto flex items-center gap-2 text-violet-600 font-bold text-sm group-hover:gap-3 transition-all">
+                                {opt.action} <ChevronRight className="w-4 h-4" />
+                            </div>
+                        </a>
                     ))}
                 </div>
-            </div>
 
-            {/* CTA */}
-            <div className="mt-16 text-center bg-gradient-to-br from-violet-50 to-violet-100/50 border border-violet-100 rounded-[2rem] p-12">
-                <h3 className="text-2xl font-black text-slate-900 mb-2">Still need help?</h3>
-                <p className="text-slate-500 font-medium mb-6">Our team is available Monday – Friday, 9am – 6pm UTC.</p>
-                <a
-                    href="mailto:support@yourplatform.com"
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-violet-700 transition-all shadow-lg"
-                >
-                    <Mail className="w-5 h-5" />
-                    Contact Support
-                </a>
-            </div>
-        </main>
+                {/* Quick Links */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                    {[
+                        { icon: <Zap className="w-5 h-5" />, label: 'Getting Started', href: '/courses' },
+                        { icon: <Shield className="w-5 h-5" />, label: 'Account & Security', href: '/dashboard/settings' },
+                        { icon: <BookOpen className="w-5 h-5" />, label: 'My Courses', href: '/dashboard/my-courses' },
+                        { icon: <HelpCircle className="w-5 h-5" />, label: 'Billing & Plans', href: '/pricing' },
+                    ].map(link => (
+                        <Link
+                            key={link.label}
+                            href={link.href}
+                            className="flex flex-col items-center gap-3 p-6 bg-white border border-slate-100 rounded-[1.5rem] text-center hover:border-violet-200 hover:shadow-lg transition-all group"
+                        >
+                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-violet-50 group-hover:text-violet-600 transition-all">
+                                {link.icon}
+                            </div>
+                            <span className="text-xs font-black text-slate-600 uppercase tracking-widest">{link.label}</span>
+                        </Link>
+                    ))}
+                </div>
+
+                {/* FAQs */}
+                <div>
+                    <div className="flex items-center gap-3 mb-8">
+                        <HelpCircle className="w-6 h-6 text-violet-500" />
+                        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Frequently Asked Questions</h2>
+                    </div>
+                    <div className="space-y-4">
+                        {faqs.map((faq, i) => (
+                            <div key={i} className="bg-white border border-slate-100 rounded-[1.5rem] p-5 hover:border-violet-100 transition-all">
+                                <h3 className="text-base font-black text-slate-900 mb-3">{faq.q}</h3>
+                                <p className="text-slate-500 font-medium leading-relaxed text-sm">{faq.a}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* CTA */}
+                <div className="mt-10 text-center bg-gradient-to-br from-violet-50 to-violet-100/50 border border-violet-100 rounded-[2rem] p-8">
+                    <h3 className="text-2xl font-black text-slate-900 mb-2">Still need help?</h3>
+                    <p className="text-slate-500 font-medium mb-6">Our team is available Monday – Friday, 9am – 6pm UTC.</p>
+                    <a
+                        href="mailto:support@yourplatform.com"
+                        className="inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-violet-700 transition-all shadow-lg"
+                    >
+                        <Mail className="w-5 h-5" />
+                        Contact Support
+                    </a>
+                </div>
+            </main>
+        </div>
     );
 }

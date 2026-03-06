@@ -13,11 +13,17 @@ export default function DashboardLayout({
 }) {
     const progress = 45;
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
         <div className="min-h-screen relative flex">
             <AuraBackground progress={progress} />
-            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+                isCollapsed={isCollapsed}
+                onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+            />
 
             {/* Mobile Header Bar */}
             <div className="md:hidden fixed top-0 left-0 right-0 z-[100] bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-sm">
@@ -41,7 +47,7 @@ export default function DashboardLayout({
                 </div>
             </div>
 
-            <main className="flex-1 min-h-screen transition-all duration-500 pt-16 md:pt-0 p-4 md:p-8 md:pl-72">
+            <main className={`flex-1 min-h-screen transition-all duration-500 pt-24 md:pt-10 lg:pt-12 p-4 md:p-8 ${isCollapsed ? 'md:pl-28' : 'md:pl-72'}`}>
                 <div className="max-w-6xl mx-auto">
                     {children}
                 </div>

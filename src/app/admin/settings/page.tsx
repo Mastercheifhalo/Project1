@@ -2,8 +2,151 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Save, Globe, Shield, Bell, Zap, Database, Key, Fingerprint } from 'lucide-react';
+import {
+    Settings, Save, Globe, Shield, Bell, Zap, Database, Key, Fingerprint,
+    Bitcoin, Wallet, CheckCircle2, AlertCircle, Loader2, QrCode, Eye, EyeOff
+} from 'lucide-react';
 
+// ─── Wallet Section ────────────────────────────────────────────────────────────
+function WalletSettings() {
+    const [addresses, setAddresses] = React.useState({ BTC: '', USDT: '', USDC: '' });
+    const [loading, setLoading] = React.useState(true);
+    const [saving, setSaving] = React.useState(false);
+    const [status, setStatus] = React.useState<'idle' | 'success' | 'error'>('idle');
+    const [revealed, setRevealed] = React.useState<Record<string, boolean>>({});
+
+    React.useEffect(() => {
+        fetch('/api/wallets')
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(data => setAddresses({ BTC: data.BTC || '', USDT: data.USDT || '', USDC: data.USDC || '' }))
+            .catch(() => { })
+            .finally(() => setLoading(false));
+    }, []);
+
+    const handleSave = async () => {
+        setSaving(true);
+        setStatus('idle');
+        try {
+            const res = await fetch('/api/admin/wallets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(addresses),
+            });
+            setStatus(res.ok ? 'success' : 'error');
+        } catch {
+            setStatus('error');
+        } finally {
+            setSaving(false);
+            setTimeout(() => setStatus('idle'), 3000);
+        }
+    };
+
+    const coins = [
+        { key: 'BTC', label: 'Bitcoin', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+        { key: 'USDT', label: 'Tether (USDT)', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+        { key: 'USDC', label: 'USD Coin (USDC)', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+    ] as const;
+
+    return (
+        <section className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-2xl shadow-slate-200/40 space-y-8">
+            <div className="flex items-center justify-between gap-3 pb-6 border-b border-slate-50">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
+                        <Wallet className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Crypto Wallet Addresses</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Changes apply instantly — no restart needed</p>
+                    </div>
+                </div>
+                <button
+                    onClick={handleSave}
+                    disabled={saving || loading}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${saving || loading
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                        : status === 'success'
+                            ? 'bg-emerald-500 text-white'
+                            : status === 'error'
+                                ? 'bg-red-500 text-white'
+                                : 'bg-slate-900 text-white hover:bg-slate-800 active:scale-95 shadow-lg'
+                        }`}
+                >
+                    {saving ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+                    ) : status === 'success' ? (
+                        <><CheckCircle2 className="w-4 h-4" /> Saved!</>
+                    ) : status === 'error' ? (
+                        <><AlertCircle className="w-4 h-4" /> Failed</>
+                    ) : (
+                        <><Save className="w-4 h-4" /> Save Wallets</>
+                    )}
+                </button>
+            </div>
+
+            {loading ? (
+                <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
+                </div>
+            ) : (
+                <div className="space-y-6">
+                    {coins.map(({ key, label, color, bg, border }) => (
+                        <div key={key} className={`rounded-2xl border ${border} ${bg} p-5 space-y-3`}>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-xs font-black uppercase tracking-widest ${color}`}>{key}</span>
+                                    <span className="text-[10px] font-medium text-slate-400">· {label}</span>
+                                </div>
+                                {addresses[key] && (
+                                    <div className="flex items-center gap-2">
+                                        {/* Live QR preview */}
+                                        <div className="bg-white rounded-lg p-1.5 border border-slate-200 shadow-sm">
+                                            <img
+                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=64x64&data=${encodeURIComponent(addresses[key])}&color=0f172a&bgcolor=ffffff&margin=0`}
+                                                alt={`${key} QR`}
+                                                className="w-10 h-10 rounded"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="relative flex items-center gap-2">
+                                <input
+                                    type={revealed[key] ? 'text' : 'password'}
+                                    value={addresses[key]}
+                                    onChange={e => setAddresses(prev => ({ ...prev, [key]: e.target.value }))}
+                                    placeholder={`Enter ${key} wallet address`}
+                                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono text-slate-800 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-all"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setRevealed(prev => ({ ...prev, [key]: !prev[key] }))}
+                                    className="shrink-0 p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-slate-700 transition-colors"
+                                    title={revealed[key] ? 'Hide address' : 'Show address'}
+                                >
+                                    {revealed[key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
+                            {addresses[key] && (
+                                <p className="text-[9px] font-mono text-slate-400 truncate px-1">
+                                    {addresses[key].slice(0, 18)}...{addresses[key].slice(-6)}
+                                </p>
+                            )}
+                        </div>
+                    ))}
+
+                    <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl flex items-start gap-3">
+                        <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                        <p className="text-xs font-medium text-amber-700 leading-relaxed">
+                            <strong>Security note:</strong> Only admins can access this page. Wallet addresses are stored securely in the database and never exposed in client-side code.
+                        </p>
+                    </div>
+                </div>
+            )}
+        </section>
+    );
+}
+
+// ─── Main Admin Settings Page ──────────────────────────────────────────────────
 const AdminSettingsPage = () => {
     const [securitySettings, setSecuritySettings] = React.useState([
         { label: 'Two-Factor Authentication', desc: 'Require 2FA for all administrator accounts', icon: Fingerprint, checked: true },
@@ -17,21 +160,17 @@ const AdminSettingsPage = () => {
 
     return (
         <div className="space-y-12">
-            {/* Header ... */}
+            {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight mb-2 uppercase">Platform <span className="premium-gradient">Settings</span></h1>
                     <p className="text-slate-500 font-bold text-sm tracking-tight">Configure global platform parameters and system integrations.</p>
                 </div>
-                <button className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-2xl shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-95">
-                    <Save className="w-5 h-5" />
-                    Save Changes
-                </button>
             </div>
 
             {/* Settings Sections */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                {/* General Config */}
+                {/* General Config + Security + Wallets */}
                 <div className="lg:col-span-2 space-y-8">
                     <section className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-2xl shadow-slate-200/40 space-y-8">
                         <div className="flex items-center gap-3 pb-6 border-b border-slate-50">
@@ -86,9 +225,12 @@ const AdminSettingsPage = () => {
                             ))}
                         </div>
                     </section>
+
+                    {/* Wallet Addresses Section */}
+                    <WalletSettings />
                 </div>
 
-                {/* API Keys / Integrations */}
+                {/* API Keys / System Status */}
                 <div className="space-y-8">
                     <section className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-2xl shadow-slate-200/40 space-y-6">
                         <div className="flex items-center gap-3">
