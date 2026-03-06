@@ -176,6 +176,12 @@ model AuditLog {
   admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
 }
 
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 enum UserRole {
   ADMIN
   STUDENT

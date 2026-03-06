@@ -58,148 +58,143 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen pb-24">
+    <main className="min-h-screen pb-16">
 
       {/* ── HERO ─────────────────────────────── */}
-      <ScrollReveal direction="none">
-        <section className="relative pt-20 md:pt-28 pb-8 md:pb-12 px-4 md:px-6 max-w-7xl mx-auto text-center">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_70%)] opacity-5 pointer-events-none -z-10" />
+      <section className="relative pt-20 md:pt-28 pb-8 md:pb-10 px-4 md:px-6 max-w-7xl mx-auto text-center">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_70%)] opacity-5 pointer-events-none -z-10" />
 
-          <ScrollReveal direction="up" delay={0.1}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-50 border border-violet-100 rounded-full text-violet-600 text-xs font-black uppercase tracking-widest mb-8">
-              <Zap className="w-3.5 h-3.5" />
-              New courses added every month
-            </div>
-          </ScrollReveal>
+        <ScrollReveal direction="up" delay={0.1}>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-50 border border-violet-100 rounded-full text-violet-600 text-xs font-black uppercase tracking-widest mb-6">
+            <Zap className="w-3.5 h-3.5" />
+            New courses added every month
+          </div>
+        </ScrollReveal>
 
-          <ScrollReveal direction="up" delay={0.2}>
-            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 px-2 leading-[1.1]">
-              Don&apos;t Just Code. <br />
-              <span className="premium-gradient uppercase italic">Build The Future.</span>
-            </h1>
-          </ScrollReveal>
+        <ScrollReveal direction="up" delay={0.2}>
+          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 px-2 leading-[1.1]">
+            Don&apos;t Just Code. <br />
+            <span className="premium-gradient uppercase italic">Build The Future.</span>
+          </h1>
+        </ScrollReveal>
 
-          <ScrollReveal direction="up" delay={0.4}>
-            <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 font-medium px-4">
-              Practical, project-based courses designed by working developers.
-              Learn skills that matter — and apply them from day one.
-            </p>
-          </ScrollReveal>
+        <ScrollReveal direction="up" delay={0.35}>
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-8 font-medium px-4">
+            Practical, project-based courses designed by working developers.
+            Learn skills that matter — and apply them from day one.
+          </p>
+        </ScrollReveal>
 
-          <ScrollReveal direction="up" delay={0.6}>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 px-6 sm:px-0">
-              <a href="#pricing" className="button-premium w-full sm:w-auto">
-                View Plans
-              </a>
-              <Link
-                href="/courses"
-                className="px-10 py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold rounded-2xl border border-slate-200 transition-all w-full sm:w-auto text-center"
-              >
-                Browse Courses
-              </Link>
-            </div>
-          </ScrollReveal>
-        </section>
-      </ScrollReveal>
+        <ScrollReveal direction="up" delay={0.5}>
+          <div className="flex flex-col sm:flex-row justify-center gap-4 px-6 sm:px-0">
+            <a href="#pricing" className="button-premium w-full sm:w-auto">
+              View Plans
+            </a>
+            <Link
+              href="/courses"
+              className="px-10 py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold rounded-2xl border border-slate-200 transition-all w-full sm:w-auto text-center"
+            >
+              Browse Courses
+            </Link>
+          </div>
+        </ScrollReveal>
+      </section>
 
       {/* ── FEATURES / VALUE PROPS ───────────── */}
-      <ScrollReveal>
-        <section className="pt-2 pb-8 px-4 md:px-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((f, i) => (
-              <ScrollReveal key={i} delay={i * 0.1}>
-                <div className="bg-white border border-slate-100 rounded-[2rem] p-8 hover:border-violet-100 hover:shadow-lg transition-all group">
-                  <div className="w-14 h-14 bg-violet-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-violet-100 transition-colors">
-                    {f.icon}
-                  </div>
-                  <h3 className="text-base font-black text-slate-900 mb-2 uppercase tracking-tight">{f.title}</h3>
-                  <p className="text-slate-500 text-sm font-medium leading-relaxed">{f.description}</p>
+      <section className="pt-2 pb-10 px-4 md:px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {features.map((f, i) => (
+            <ScrollReveal key={i} delay={i * 0.08}>
+              <div className="bg-white border border-slate-100 rounded-[2rem] p-7 hover:border-violet-100 hover:shadow-lg transition-all group">
+                <div className="w-14 h-14 bg-violet-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-violet-100 transition-colors">
+                  {f.icon}
                 </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </section>
-      </ScrollReveal>
+                <h3 className="text-base font-black text-slate-900 mb-2 uppercase tracking-tight">{f.title}</h3>
+                <p className="text-slate-500 text-sm font-medium leading-relaxed">{f.description}</p>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </section>
 
       {/* ── TRIAL VIDEOS ─────────────────────── */}
-      <ScrollReveal>
-        <section id="trial" className="py-12 md:py-16 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-24">
+      <section id="trial" className="py-10 md:py-14 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-24">
+        <ScrollReveal direction="up">
           <div className="text-center mb-8">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight uppercase">High-Quality <span className="text-violet-500">Learning</span></h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight uppercase">High-Quality <span className="text-violet-500">Learning</span></h2>
             <p className="text-slate-600 max-w-xl mx-auto text-lg leading-relaxed font-medium">
               Get a taste of what&apos;s inside. The first lesson of every course is completely free — no account required.
             </p>
-            <Link href="/courses" className="inline-flex items-center gap-2 mt-6 text-sm font-black text-violet-600 hover:text-violet-800 transition-colors">
+            <Link href="/courses" className="inline-flex items-center gap-2 mt-4 text-sm font-black text-violet-600 hover:text-violet-800 transition-colors">
               Browse all courses <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+        </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {trialVideos.map((video, index) => (
-              <ScrollReveal key={index} delay={index * 0.1}>
-                <TrialVideo {...video} />
-              </ScrollReveal>
-            ))}
-          </div>
-        </section>
-      </ScrollReveal>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {trialVideos.map((video, index) => (
+            <ScrollReveal key={index} delay={index * 0.1}>
+              <TrialVideo {...video} />
+            </ScrollReveal>
+          ))}
+        </div>
+      </section>
 
       {/* ── PRICING ──────────────────────────── */}
-      <ScrollReveal>
-        <section id="pricing" className="py-12 md:py-16 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-24">
+      <section id="pricing" className="py-10 md:py-14 px-4 md:px-6 max-w-7xl mx-auto scroll-mt-24">
+        <ScrollReveal direction="up">
           <div className="text-center mb-8">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight uppercase">Simple, Transparent <span className="text-violet-500">Pricing</span></h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight uppercase">Simple, Transparent <span className="text-violet-500">Pricing</span></h2>
             <p className="text-slate-600 max-w-xl mx-auto text-lg leading-relaxed font-medium">
               Subscribe for full catalog access, or purchase individual courses for lifetime ownership. Pay with crypto or card.
             </p>
           </div>
+        </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {pricingTiers.map((tier, index) => (
-              <ScrollReveal key={index} delay={index * 0.1}>
-                <PricingCard {...tier} />
-              </ScrollReveal>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {pricingTiers.map((tier, index) => (
+            <ScrollReveal key={index} delay={index * 0.1}>
+              <PricingCard {...tier} />
+            </ScrollReveal>
+          ))}
+        </div>
+
+        <ScrollReveal direction="up" delay={0.2}>
+          <div className="mt-8 text-center p-6 bg-slate-50 border border-slate-100 rounded-[2rem]">
+            <p className="text-slate-500 font-medium text-sm">
+              Prefer to buy one course at a time?{' '}
+              <Link href="/courses" className="text-violet-600 font-black hover:underline">
+                Browse individual courses →
+              </Link>{' '}
+              Each course is also available as a one-time lifetime purchase.
+            </p>
           </div>
-
-          {/* One-time purchase note */}
-          <ScrollReveal direction="up" delay={0.3}>
-            <div className="mt-12 text-center p-8 bg-slate-50 border border-slate-100 rounded-[2rem]">
-              <p className="text-slate-500 font-medium text-sm">
-                Prefer to buy one course at a time?{' '}
-                <Link href="/courses" className="text-violet-600 font-black hover:underline">
-                  Browse individual courses →
-                </Link>{' '}
-                Each course is also available as a one-time lifetime purchase.
-              </p>
-            </div>
-          </ScrollReveal>
-        </section>
-      </ScrollReveal>
+        </ScrollReveal>
+      </section>
 
       {/* ── TESTIMONIALS ─────────────────────── */}
       <Testimonials />
 
       {/* ── FINAL CTA ────────────────────────── */}
-      <ScrollReveal direction="none">
-        <section className="py-12 md:py-16 max-w-7xl mx-auto px-4 md:px-6 mb-12">
-          <div className="relative bg-slate-900 rounded-[2.5rem] md:rounded-[3rem] p-10 md:p-24 overflow-hidden text-center group">
+      <section className="py-10 md:py-14 max-w-7xl mx-auto px-4 md:px-6 mb-4">
+        <ScrollReveal direction="none">
+          <div className="relative bg-slate-900 rounded-[2.5rem] md:rounded-[3rem] p-10 md:p-20 overflow-hidden text-center group">
             <div className="absolute top-0 right-0 w-96 h-96 bg-violet-600/30 blur-[100px] -mr-48 -mt-48 group-hover:bg-violet-600/40 transition-colors" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-sky-600/20 blur-[100px] -ml-48 -mb-48 group-hover:bg-sky-600/30 transition-colors" />
 
             <div className="relative z-10 flex flex-col items-center">
-              <ScrollReveal direction="up" delay={0.2}>
-                <h2 className="text-3xl md:text-6xl font-black !text-white mb-8 tracking-tight leading-tight">
+              <ScrollReveal direction="up" delay={0.1}>
+                <h2 className="text-3xl md:text-6xl font-black !text-white mb-6 tracking-tight leading-tight">
                   Ready to level up? <br />
                   <span className="text-violet-400">Start learning today.</span>
                 </h2>
               </ScrollReveal>
-              <ScrollReveal direction="up" delay={0.4}>
-                <p className="!text-white/70 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium">
+              <ScrollReveal direction="up" delay={0.2}>
+                <p className="!text-white/70 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-medium">
                   A growing community of developers building real skills with CoursePro.
                 </p>
               </ScrollReveal>
-              <ScrollReveal direction="up" delay={0.6}>
+              <ScrollReveal direction="up" delay={0.3}>
                 <a
                   href="/register"
                   className="inline-flex items-center justify-center gap-3 px-8 md:px-12 py-5 bg-white text-slate-900 text-lg md:text-xl font-black rounded-2xl hover:bg-slate-100 transition-all hover:scale-105 shadow-2xl shadow-white/10 w-full sm:w-auto"
@@ -210,12 +205,12 @@ export default function Home() {
               </ScrollReveal>
             </div>
           </div>
-        </section>
-      </ScrollReveal>
+        </ScrollReveal>
+      </section>
 
       {/* ── FOOTER ───────────────────────────── */}
       <footer className="border-t border-slate-100 pt-10 pb-8 px-4 md:px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-10">
 
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
